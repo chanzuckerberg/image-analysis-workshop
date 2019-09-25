@@ -1,4 +1,6 @@
-# NDCN computational biology training 2019 - Introduction to image analysis in python
+# NDCN computational biology training 2019
+
+## Introduction to image analysis in Python
 
 This tutorial will introduce how to analyze images in Python, mainly using scikit-image. Here we will learn how to:
   * pre-process data using filtering, binarization and segmentation techniques.
