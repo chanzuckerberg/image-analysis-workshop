@@ -1,0 +1,1703 @@
+---
+redirect_from:
+  - "/lessons/01-2d-processing"
+interact_link: content/lessons/01_2d_processing.ipynb
+kernel_name: python3
+has_widgets: false
+title: |-
+  2D processing
+prev_page:
+  url: /lessons/00_fundamentals_skimage.html
+  title: |-
+    Fundamentals of scikit-image
+next_page:
+  url: /lessons/02_datasets_visualization.html
+  title: |-
+    Visualization
+comment: "***PROGRAMMATICALLY GENERATED, DO NOT EDIT. SEE ORIGINAL FILES IN /content***"
+---
+<main class="jupyter-page">
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="ImageXD-2019---Images-across-domains">ImageXD 2019 - Images across domains<a class="anchor-link" href="#ImageXD-2019---Images-across-domains"> </a></h1><p>BIDS @ University of California, Berkeley</p>
+<ul>
+<li>Support material for the tutorial <em>scikit-image: 3D Image Processing</em>.</li>
+</ul>
+<p>This tutorial will introduce how to analyze three dimensional stacked and volumetric
+images in Python, mainly using scikit-image. Here we will learn how to:</p>
+<ul>
+<li>pre-process data using filtering, binarization and segmentation techniques.</li>
+<li>inspect, count and measure attributes of objects and regions of interest in the data.</li>
+<li>visualize 3D data.</li>
+</ul>
+<p>Please prepare for the tutorial by <a href="preparation.md">installing the pre-requisite
+software</a> beforehand.</p>
+<p>For more info:</p>
+<ul>
+<li><a href="https://xd-con.org/imagexd-2019/">[ImageXD 2019]</a></li>
+<li><a href="https://scikit-image.org/">[scikit-image]</a></li>
+</ul>
+<h2 id="What-is-scikit-image?">What is scikit-image?<a class="anchor-link" href="#What-is-scikit-image?"> </a></h2><p>scikit-image is a collection of image processing algorithms which aims to integrate well with for the SciPy ecosystem.</p>
+<p>It is well documented, and provides well-tested code to quickly build sophisticated image processing pipelines.</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Importing-the-base-Scientific-Python-ecossystem">Importing the base Scientific Python ecossystem<a class="anchor-link" href="#Importing-the-base-Scientific-Python-ecossystem"> </a></h2><p>Let's start importing the basics.</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="k">import</span> <span class="n">ndimage</span>
+
+<span class="o">%</span><span class="k">matplotlib</span> inline
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Importing-some-helping-functions">Importing some helping functions<a class="anchor-link" href="#Importing-some-helping-functions"> </a></h2>
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">supplementary_code</span> <span class="k">as</span> <span class="nn">sc</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Then, let's set a nice, <code>monospace</code> font for matplotlib's figures.</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;font.family&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;monospace&#39;</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Introduction-to-two-dimensional-image-processing">Introduction to two-dimensional image processing<a class="anchor-link" href="#Introduction-to-two-dimensional-image-processing"> </a></h2><p>In scikit-image, images are represented as <code>numpy</code> arrays.</p>
+<p>A grayscale image is a 2D matrix of pixel intensities of shape <code>(row, column)</code>. They are also called single-channel images. Multi-channel data has an extra dimension, <code>channel</code>, in the final position. <code>channel</code> contains color information:</p>
+<table>
+<thead><tr>
+<th style="text-align:left">Image type</th>
+<th style="text-align:left">Coordinates</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">2D grayscale</td>
+<td style="text-align:left">(row, column)</td>
+</tr>
+<tr>
+<td style="text-align:left">2D multichannel</td>
+<td style="text-align:left">(row, column, channel)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="skimage.io---utilities-to-read-and-write-images-in-several-formats"><a href="https://scikit-image.org/docs/stable/api/skimage.io.html">skimage.io</a> - utilities to read and write images in several formats<a id="io" /><a class="anchor-link" href="#skimage.io---utilities-to-read-and-write-images-in-several-formats"> </a></h2><p>This module helps us on reading images and saving the results. There are multiple plugins available, which support multiple formats. The most commonly used functions include:</p>
+<ul>
+<li><code>io.imread</code>: read an image to a numpy array.</li>
+<li><code>io.imsave</code>: write an image to disk.</li>
+<li><code>io.imread_collection</code>: read multiple images which match a common pattern.</li>
+</ul>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">skimage</span> <span class="k">import</span> <span class="n">io</span>  <span class="c1"># skimage&#39;s I/O submodule.</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Data can be loaded with <code>io.imread</code>, as in the following example.</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">cells</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="s1">&#39;data/cells.tif&#39;</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>First let's check its shape, data type and range.</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;* &quot;cells&quot; shape: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cells</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;* &quot;cells&quot; type: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cells</span><span class="o">.</span><span class="n">dtype</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;* &quot;cells&quot; range: </span><span class="si">{}</span><span class="s1">, </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cells</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">cells</span><span class="o">.</span><span class="n">max</span><span class="p">()))</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We see that <code>cells</code> has 60 planes, each with 256 rows and 256 columns. Let's focus here on processing one of the planes first, which falls to the case of processing a two-dimensional image. Then, we can visualize a 2D plane using <code>skimage.io.imshow</code>.</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">plane</span> <span class="o">=</span> <span class="n">cells</span><span class="p">[</span><span class="mi">32</span><span class="p">]</span>  <span class="c1"># using the plane 32</span>
+<span class="n">io</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">plane</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Note that <code>skimage.io.imshow</code> can only display grayscale and RGB(A) 2D images.</p>
+<h2 id="skimage.exposure---evaluating-or-changing-the-exposure-of-an-image"><a href="https://scikit-image.org/docs/stable/api/skimage.exposure.html">skimage.exposure</a> - evaluating or changing the exposure of an image<a id="exposure" /><a class="anchor-link" href="#skimage.exposure---evaluating-or-changing-the-exposure-of-an-image"> </a></h2><p>This module contains a number of functions for adjusting image contrast. We will use <code>exposure.adjust_gamma</code>, which performs gamma correction in the input image.</p>
+<p><a href="https://en.wikipedia.org/wiki/Gamma_correction">Gamma correction</a>, also known as Power Law Transform, brightens or darkens an image. The function $O = I^\gamma$ is applied to each pixel in the image. A <code>gamma &lt; 1</code> will brighten an image, while a <code>gamma &gt; 1</code> will darken an image.</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">skimage</span> <span class="k">import</span> <span class="n">exposure</span>  <span class="c1"># skimage&#39;s exposure module.</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">gamma_val_low</span> <span class="o">=</span> <span class="mf">0.5</span>
+<span class="n">plane_gamma_low</span> <span class="o">=</span> <span class="n">exposure</span><span class="o">.</span><span class="n">adjust_gamma</span><span class="p">(</span><span class="n">plane</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="n">gamma_val_low</span><span class="p">)</span>
+
+<span class="n">gamma_val_high</span> <span class="o">=</span> <span class="mf">1.5</span>
+<span class="n">plane_gamma_high</span> <span class="o">=</span> <span class="n">exposure</span><span class="o">.</span><span class="n">adjust_gamma</span><span class="p">(</span><span class="n">plane</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="n">gamma_val_high</span><span class="p">)</span>
+
+<span class="n">_</span><span class="p">,</span> <span class="p">((</span><span class="n">win_top_left</span><span class="p">,</span> <span class="n">win_top_center</span><span class="p">,</span> <span class="n">win_top_right</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">win_bottom_left</span><span class="p">,</span> <span class="n">win_bottom_center</span><span class="p">,</span> <span class="n">win_bottom_right</span><span class="p">))</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+
+<span class="c1"># Original and its histogram.</span>
+<span class="n">sc</span><span class="o">.</span><span class="n">show_plane</span><span class="p">(</span><span class="n">win_top_left</span><span class="p">,</span> <span class="n">plane</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Original&#39;</span><span class="p">)</span>
+<span class="n">sc</span><span class="o">.</span><span class="n">plot_hist</span><span class="p">(</span><span class="n">win_bottom_left</span><span class="p">,</span> <span class="n">plane</span><span class="p">)</span>
+
+<span class="c1"># Gamma = 0.5 and its histogram.</span>
+<span class="n">sc</span><span class="o">.</span><span class="n">show_plane</span><span class="p">(</span><span class="n">win_top_center</span><span class="p">,</span> <span class="n">plane_gamma_low</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Gamma = </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">gamma_val_low</span><span class="p">))</span>
+<span class="n">sc</span><span class="o">.</span><span class="n">plot_hist</span><span class="p">(</span><span class="n">win_bottom_center</span><span class="p">,</span> <span class="n">plane_gamma_low</span><span class="p">)</span>
+
+<span class="c1"># Gamma = 1.5 and its histogram.</span>
+<span class="n">sc</span><span class="o">.</span><span class="n">show_plane</span><span class="p">(</span><span class="n">win_top_right</span><span class="p">,</span> <span class="n">plane_gamma_high</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Gamma = </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">gamma_val_high</span><span class="p">))</span>
+<span class="n">sc</span><span class="o">.</span><span class="n">plot_hist</span><span class="p">(</span><span class="n">win_bottom_right</span><span class="p">,</span> <span class="n">plane_gamma_high</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Most experimental images are affected by salt and pepper noise. A few bright artifacts can decrease the relative intensity of the pixels of interest.</p>
+<p>A simple way to improve contrast is to clip the pixel values on the lowest and highest extremes. Here we use <code>exposure.rescale_intensity</code> for that. Clipping the darkest and brightest 0.5% of pixels will increase the overall contrast of the image.</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">plane</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">99.5</span><span class="p">))</span>
+
+<span class="n">plane_clipped</span> <span class="o">=</span> <span class="n">exposure</span><span class="o">.</span><span class="n">rescale_intensity</span><span class="p">(</span>
+    <span class="n">plane</span><span class="p">,</span>
+    <span class="n">in_range</span><span class="o">=</span><span class="p">(</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="p">),</span> 
+    <span class="n">out_range</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span>
+<span class="p">)</span>
+
+<span class="c1"># Checking the results.</span>
+<span class="n">_</span><span class="p">,</span> <span class="p">(</span><span class="n">win_left</span><span class="p">,</span> <span class="n">win_right</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+
+<span class="n">sc</span><span class="o">.</span><span class="n">show_plane</span><span class="p">(</span><span class="n">win_left</span><span class="p">,</span> <span class="n">plane</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Original&#39;</span><span class="p">);</span>
+<span class="n">sc</span><span class="o">.</span><span class="n">show_plane</span><span class="p">(</span><span class="n">win_right</span><span class="p">,</span> <span class="n">plane_clipped</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Clipped&#39;</span><span class="p">);</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We'll call our dataset <code>plane_rescaled</code> from now on. It will contain the plane version with clipped data.</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">plane_rescaled</span> <span class="o">=</span> <span class="n">plane_clipped</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<div class="alert alert-success">
+
+<p><strong>Exercise: <font color='red'>(⏰ 5 min)</font></strong> One of the most common tools to evaluate exposure is the <em>histogram</em>, which plots the number of points which have a certain value against the values in order from lowest (dark) to highest (light).</p>
+<p>A well-known tool for that is the <a href="https://en.wikipedia.org/wiki/Histogram_equalization">Histogram equalization</a>, which improves contrast in an image by redistributing pixel intensities. This operation may enhance background noise, since the most common pixel intensities are spread out, allowing areas of lower local contrast to gain a higher contrast.</p>
+<p><a href="https://en.wikipedia.org/wiki/Adaptive_histogram_equalization">Adaptive histogram equalization</a>, on the other hand, is suitable for improving the local contrast and enhancing the definitions of edges in each region of an image. The adaptive method computes several histograms, each corresponding to a section of the image, and uses them to redistribute its lightness values.</p>
+<p>Now, there's some tasks for you:</p>
+<ul>
+<li>Process <code>plane</code>'s histogram using histogram equalization, given in <code>exposure.equalize_hist</code>, and its adaptive version, from <code>exposure.equalize_adapthist</code>.</li>
+<li>Visualize the results.</li>
+</ul>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Your solution goes here!</span>
+
+<span class="c1"># First, let&#39;s create a version using histogram equalization. </span>
+<span class="n">plane_equalized</span> <span class="o">=</span> <span class="n">exposure</span><span class="o">.</span><span class="n">equalize_hist</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+
+<span class="c1"># Now, a version using CLAHE. </span>
+<span class="n">plane_clahe</span> <span class="o">=</span> <span class="n">exposure</span><span class="o">.</span><span class="n">equalize_adapthist</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+
+<span class="c1"># Let&#39;s check the results.</span>
+<span class="n">_</span><span class="p">,</span> <span class="p">((</span><span class="n">win_top_left</span><span class="p">,</span> <span class="n">win_top_center</span><span class="p">,</span> <span class="n">win_top_right</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">win_bottom_left</span><span class="p">,</span> <span class="n">win_bottom_center</span><span class="p">,</span> <span class="n">win_bottom_right</span><span class="p">))</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+
+<span class="c1"># On the top, the 2D plots...</span>
+<span class="n">sc</span><span class="o">.</span><span class="n">show_plane</span><span class="p">(</span><span class="n">win_top_left</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Original&#39;</span><span class="p">)</span>
+<span class="n">sc</span><span class="o">.</span><span class="n">show_plane</span><span class="p">(</span><span class="n">win_top_center</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Histogram equalization&#39;</span><span class="p">)</span>
+<span class="n">sc</span><span class="o">.</span><span class="n">show_plane</span><span class="p">(</span><span class="n">win_top_right</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;CLAHE&#39;</span><span class="p">)</span>
+
+<span class="c1"># ... on the bottom, the histograms.</span>
+<span class="n">sc</span><span class="o">.</span><span class="n">plot_hist</span><span class="p">(</span><span class="n">win_bottom_left</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+<span class="n">sc</span><span class="o">.</span><span class="n">plot_hist</span><span class="p">(</span><span class="n">win_bottom_center</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+<span class="n">sc</span><span class="o">.</span><span class="n">plot_hist</span><span class="p">(</span><span class="n">win_bottom_right</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Edge-detection">Edge detection<a class="anchor-link" href="#Edge-detection"> </a></h2><p><a href="https://en.wikipedia.org/wiki/Edge_detection">Edge detection</a> highlights regions in the image where a sharp change in contrast occurs. The intensity of an edge corresponds to the steepness of the transition from one intensity to another. A gradual shift from bright to dark intensity results in a dim edge. An abrupt shift results in a bright edge.</p>
+<h2 id="skimage.filters---apply-filters-to-an-image"><a href="https://scikit-image.org/docs/stable/api/skimage.filters.html">skimage.filters</a> - apply filters to an image<a id="filters" /><a class="anchor-link" href="#skimage.filters---apply-filters-to-an-image"> </a></h2><p>Filtering applies whole-image modifications such as sharpening or blurring. In addition to edge detection, <code>skimage.filters</code> provides functions for filtering and thresholding images.</p>
+<p>Notable functions include (links to relevant gallery examples):</p>
+<ul>
+<li><a href="https://scikit-image.org/docs/stable/auto_examples/applications/plot_thresholding.html">Thresholding</a>:<ul>
+<li><code>filters.threshold_*</code> (multiple different functions with this prefix)</li>
+<li><code>filters.try_all_threshold</code> to compare various methods</li>
+</ul>
+</li>
+<li><a href="https://scikit-image.org/docs/stable/auto_examples/edges/plot_edge_filter.html">Edge finding/enhancement</a>:<ul>
+<li><code>filters.sobel</code> - not adapted for 3D images. It can be applied planewise to approximate a 3D result.</li>
+<li><code>filters.prewitt</code></li>
+<li><code>filters.scharr</code></li>
+<li><code>filters.roberts</code></li>
+<li><code>filters.laplace</code></li>
+<li><code>filters.hessian</code></li>
+</ul>
+</li>
+<li><a href="https://scikit-image.org/docs/stable/auto_examples/edges/plot_ridge_filter.html">Ridge filters</a>:<ul>
+<li><code>filters.meijering</code></li>
+<li><code>filters.sato</code></li>
+<li><code>filters.frangi</code></li>
+</ul>
+</li>
+<li>Inverse filtering (see also <a href="#restoration">skimage.restoration</a>):<ul>
+<li><code>filters.weiner</code></li>
+<li><code>filters.inverse</code></li>
+</ul>
+</li>
+<li><a href="https://scikit-image.org/docs/stable/auto_examples/features_detection/plot_gabor.html">Directional</a>: <code>filters.gabor</code></li>
+<li>Blurring/denoising<ul>
+<li><code>filters.gaussian</code></li>
+<li><code>filters.median</code></li>
+</ul>
+</li>
+<li><a href="https://scikit-image.org/docs/stable/auto_examples/filters/plot_unsharp_mask.html">Sharpening</a>: <code>filters.unsharp_mask</code></li>
+<li>Define your own filter: <code>LPIFilter2D</code></li>
+</ul>
+<p>The sub-submodule <code>skimage.filters.rank</code> contains rank filters. These filters are nonlinear and operate on the local histogram.</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">skimage</span> <span class="k">import</span> <span class="n">filters</span>  <span class="c1"># skimage&#39;s filtering module</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The <a href="https://en.wikipedia.org/wiki/Sobel_operator">Sobel operator</a> is an edge detection algorithm which approximates the gradient of the image intensity, and is fast to compute.</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">plane_sobel</span> <span class="o">=</span> <span class="n">filters</span><span class="o">.</span><span class="n">sobel</span><span class="p">(</span><span class="n">plane_rescaled</span><span class="p">)</span>
+
+<span class="c1"># Checking the results.</span>
+<span class="n">_</span><span class="p">,</span> <span class="p">(</span><span class="n">win_left</span><span class="p">,</span> <span class="n">win_right</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+
+<span class="n">sc</span><span class="o">.</span><span class="n">show_plane</span><span class="p">(</span><span class="n">win_left</span><span class="p">,</span> <span class="n">plane</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Original&#39;</span><span class="p">);</span>
+<span class="c1"># setting a different map to ease visualization</span>
+<span class="n">sc</span><span class="o">.</span><span class="n">show_plane</span><span class="p">(</span><span class="n">win_right</span><span class="p">,</span> <span class="n">plane_sobel</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Sobel&#39;</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;Blues&#39;</span><span class="p">);</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<div class="alert alert-success">
+
+<p><strong>Exercise: <font color='red'>(⏰ 5 min)</font></strong> let's check the results of other filters.</p>
+<p>Your tasks right now are:</p>
+<ul>
+<li>Try the horizontal (<code>filters.sobel_h</code>) and vertical(<code>filters.sobel_v</code>) versions of the Sobel filter.</li>
+<li>Check the results of other filters, <code>filters.roberts</code>, <code>filters.prewitt</code>, <code>filters.scharr</code>.</li>
+</ul>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Your solution goes here!</span>
+<span class="n">plane_sobel_h</span> <span class="o">=</span> <span class="o">...</span>  <span class="c1"># Horizontal Sobel.</span>
+<span class="n">plane_sobel_v</span> <span class="o">=</span> <span class="o">...</span>  <span class="c1"># Vertical Sobel.</span>
+<span class="n">plane_roberts</span> <span class="o">=</span> <span class="o">...</span>  <span class="c1"># Roberts.</span>
+<span class="n">plane_prewitt</span> <span class="o">=</span> <span class="o">...</span>  <span class="c1"># Prewitt.</span>
+<span class="n">plane_scharr</span> <span class="o">=</span> <span class="o">...</span>  <span class="c1"># Scharr.</span>
+
+<span class="c1"># Checking the results.</span>
+<span class="n">_</span><span class="p">,</span> <span class="p">((</span><span class="n">win_top_left</span><span class="p">,</span> <span class="n">win_top_center</span><span class="p">,</span> <span class="n">win_top_right</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">win_bottom_left</span><span class="p">,</span> <span class="n">win_bottom_center</span><span class="p">,</span> <span class="n">win_bottom_right</span><span class="p">))</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+
+<span class="n">sc</span><span class="o">.</span><span class="n">show_plane</span><span class="p">(</span><span class="n">win_top_left</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Original&#39;</span><span class="p">)</span>
+<span class="n">sc</span><span class="o">.</span><span class="n">show_plane</span><span class="p">(</span><span class="n">win_top_center</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Horizontal Sobel&#39;</span><span class="p">)</span>
+<span class="n">sc</span><span class="o">.</span><span class="n">show_plane</span><span class="p">(</span><span class="n">win_top_right</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Vertical Sobel&#39;</span><span class="p">)</span>
+
+<span class="n">sc</span><span class="o">.</span><span class="n">show_plane</span><span class="p">(</span><span class="n">win_bottom_left</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Roberts&#39;</span><span class="p">)</span>
+<span class="n">sc</span><span class="o">.</span><span class="n">show_plane</span><span class="p">(</span><span class="n">win_bottom_center</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Prewitt&#39;</span><span class="p">)</span>
+<span class="n">sc</span><span class="o">.</span><span class="n">show_plane</span><span class="p">(</span><span class="n">win_bottom_right</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Scharr&#39;</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Filters">Filters<a class="anchor-link" href="#Filters"> </a></h2><p><a href="https://en.wikipedia.org/wiki/Gaussian_filter">Gaussian filter</a> applies a Gaussian function to an image, creating a smoothing effect. <code>skimage.filters.gaussian</code> takes as input <code>sigma</code> which can be a scalar or a sequence of scalar. This <code>sigma</code> determines the standard deviation of the Gaussian along each axis.</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">sigma</span> <span class="o">=</span> <span class="mf">1.5</span>
+
+<span class="n">plane_gaussian</span> <span class="o">=</span> <span class="n">filters</span><span class="o">.</span><span class="n">gaussian</span><span class="p">(</span><span class="n">plane_rescaled</span><span class="p">,</span>
+                                  <span class="n">multichannel</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                  <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">)</span>
+
+<span class="n">_</span><span class="p">,</span> <span class="p">(</span><span class="n">win_left</span><span class="p">,</span> <span class="n">win_right</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+
+<span class="n">sc</span><span class="o">.</span><span class="n">show_plane</span><span class="p">(</span><span class="n">win_left</span><span class="p">,</span> <span class="n">plane</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Original&#39;</span><span class="p">);</span>
+<span class="n">sc</span><span class="o">.</span><span class="n">show_plane</span><span class="p">(</span><span class="n">win_right</span><span class="p">,</span> <span class="n">plane_gaussian</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Gaussian&#39;</span><span class="p">);</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><a href="https://en.wikipedia.org/wiki/Median_filter">Median filter</a> is a noise removal filter. It is particularly effective against salt and pepper noise. An additional feature of the median filter is its ability to preserve edges. This is helpful in segmentation because the original shape of regions of interest will be preserved.</p>
+<p><code>skimage.filters.median</code> does not support three-dimensional images and needs to be applied planewise.</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">plane_median</span> <span class="o">=</span> <span class="n">filters</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">plane_rescaled</span><span class="p">,</span> <span class="n">behavior</span><span class="o">=</span><span class="s1">&#39;ndimage&#39;</span><span class="p">)</span>
+
+<span class="c1"># Checking the results.</span>
+<span class="n">_</span><span class="p">,</span> <span class="p">(</span><span class="n">win_left</span><span class="p">,</span> <span class="n">win_right</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+
+<span class="n">sc</span><span class="o">.</span><span class="n">show_plane</span><span class="p">(</span><span class="n">win_left</span><span class="p">,</span> <span class="n">plane</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Original&#39;</span><span class="p">);</span>
+<span class="n">sc</span><span class="o">.</span><span class="n">show_plane</span><span class="p">(</span><span class="n">win_right</span><span class="p">,</span> <span class="n">plane_median</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Median&#39;</span><span class="p">);</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We will choose the median-filtered image to continue.</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">plane_denoised</span> <span class="o">=</span> <span class="n">plane_median</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<div class="alert alert-success">
+
+<p><strong>Exercise: <font color='red'>(⏰ 5 min)</font></strong> the module <code>skimage.restoration</code> includes routines to restore images and reduce their noise.</p>
+<p>Now your tasks are:</p>
+<ul>
+<li>Use bilateral and Chambolle's total variation filters on the test image. They are in the functions <code>restoration.denoise_bilateral</code> and <code>restoration.denoise_tv_chambolle</code>, respectively.</li>
+</ul>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">skimage</span> <span class="k">import</span> <span class="n">restoration</span>  <span class="c1"># skimage&#39;s restoration submodule.</span>
+
+<span class="n">plane_bilateral</span> <span class="o">=</span> <span class="n">restoration</span><span class="o">.</span> <span class="o">...</span>
+<span class="n">plane_wiener</span> <span class="o">=</span> <span class="n">restoration</span><span class="o">.</span> <span class="o">...</span>
+
+<span class="c1"># Checking the results.</span>
+<span class="n">_</span><span class="p">,</span> <span class="p">(</span><span class="n">win_left</span><span class="p">,</span> <span class="n">win_center</span><span class="p">,</span> <span class="n">win_right</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+
+<span class="n">sc</span><span class="o">.</span><span class="n">show_plane</span><span class="p">(</span><span class="n">win_left</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Original&#39;</span><span class="p">)</span>
+<span class="n">sc</span><span class="o">.</span><span class="n">show_plane</span><span class="p">(</span><span class="n">win_center</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Bilateral&#39;</span><span class="p">)</span>
+<span class="n">sc</span><span class="o">.</span><span class="n">show_plane</span><span class="p">(</span><span class="n">win_right</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;TV Chambolle&#39;</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Thresholding">Thresholding<a class="anchor-link" href="#Thresholding"> </a></h2><p><a href="https://en.wikipedia.org/wiki/Thresholding_%28image_processing%29">Thresholding</a> is used to create binary images. A threshold value determines the intensity value separating foreground pixels from background pixels. Foregound pixels are pixels brighter than the threshold value, background pixels are darker. Thresholding is a form of image segmentation, and different thresholding algorithms produce different results.</p>
+<p>Let's try the Li's minimum cross entropy threshold:</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">threshold_li</span> <span class="o">=</span> <span class="n">filters</span><span class="o">.</span><span class="n">threshold_li</span><span class="p">(</span><span class="n">plane_denoised</span><span class="p">)</span>
+<span class="n">plane_binary</span> <span class="o">=</span> <span class="n">plane_denoised</span> <span class="o">&gt;=</span> <span class="n">threshold_li</span>
+
+<span class="n">_</span><span class="p">,</span> <span class="p">(</span><span class="n">win_left</span><span class="p">,</span> <span class="n">win_center</span><span class="p">,</span> <span class="n">win_right</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+
+<span class="c1"># Checking the results.</span>
+<span class="n">sc</span><span class="o">.</span><span class="n">show_plane</span><span class="p">(</span><span class="n">win_left</span><span class="p">,</span> <span class="n">plane</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Original&#39;</span><span class="p">)</span>
+<span class="n">sc</span><span class="o">.</span><span class="n">show_plane</span><span class="p">(</span><span class="n">win_center</span><span class="p">,</span> <span class="n">plane_binary</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Li</span><span class="se">\&#39;</span><span class="s1">s threshold = </span><span class="si">{:0.2}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">threshold_li</span><span class="p">))</span>
+
+<span class="n">sc</span><span class="o">.</span><span class="n">plot_hist</span><span class="p">(</span><span class="n">win_right</span><span class="p">,</span> <span class="n">plane_denoised</span><span class="p">,</span> <span class="s1">&#39;Histogram +</span><span class="se">\n</span><span class="s1"> Li</span><span class="se">\&#39;</span><span class="s1">s threshold (red line)&#39;</span><span class="p">)</span>
+<span class="n">win_right</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">threshold_li</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<div class="alert alert-success">
+
+<p><strong>Exercise: <font color='red'>(⏰ 5 min)</font></strong> There are lots of thresholding algorithms in scikit-image, and a function that helps you on trying some of them.</p>
+<p>Your task is:</p>
+<ul>
+<li>Use the function <code>filters.try_all_threshold</code> to try some different thresholds on our plane. Compare their results.</li>
+<li>Check the threshold values of each algorithm contained in that function. The functions have names such as <code>filters.threshold_*</code>; start typing and use the <code>TAB</code> key to complete.</li>
+</ul>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Your solution goes here!</span>
+<span class="n">filters</span><span class="o">.</span><span class="n">try_all_threshold</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">filters</span><span class="o">.</span><span class="n">threshold_isodata</span><span class="p">(</span><span class="n">plane_denoised</span><span class="p">))</span>  <span class="c1"># This one is for free!</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="skimage.morphology---binary-and-grayscale-morphology"><a id="morphology" /><a href="https://scikit-image.org/docs/stable/api/skimage.morphology.html">skimage.morphology</a> - binary and grayscale morphology<a class="anchor-link" href="#skimage.morphology---binary-and-grayscale-morphology"> </a></h2><p>Morphological image processing is a collection of non-linear operations related to the shape or morphology of features in an image, such as boundaries, skeletons, etc. In any given technique, we probe an image with a small shape or template called a structuring element, which defines the region of interest or neighborhood around a pixel.</p>
+<p><a href="https://en.wikipedia.org/wiki/Mathematical_morphology">Mathematical morphology</a> operations and structuring elements are defined in <code>skimage.morphology</code>. Structuring elements are shapes which define areas over which an operation is applied. The response to the filter indicates how well the neighborhood corresponds to the structuring element's shape.</p>
+<p>There are a number of two and three dimensional structuring elements defined in <code>skimage.morphology</code>. Not all 2D structuring element have a 3D counterpart. The simplest and most commonly used structuring elements are the <code>disk</code>/<code>ball</code> and <code>square</code>/<code>cube</code>.</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">skimage</span> <span class="k">import</span> <span class="n">morphology</span>  <span class="c1"># skimage&#39;s morphological submodules.</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">disk</span> <span class="o">=</span> <span class="n">morphology</span><span class="o">.</span><span class="n">disk</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">ball</span> <span class="o">=</span> <span class="n">morphology</span><span class="o">.</span><span class="n">ball</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;* &quot;disk&quot; shape: </span><span class="si">{}</span><span class="se">\n</span><span class="s1">* &quot;ball&quot; shape: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">disk</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">ball</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The most basic mathematical morphology operations are <code>dilation</code> and <code>erosion</code>. Dilation enlarges bright regions and shrinks dark regions. Erosion shrinks bright regions and enlarges dark regions. Other morphological operations are composed of <code>dilation</code> and <code>erosion</code>.</p>
+<p>The <code>closing</code> of an image is defined as a <code>dilation</code> followed by an <code>erosion</code>. Closing can remove small dark spots (i.e. “pepper”) and connect small bright cracks. This tends to “close” up (dark) gaps between (bright) features. Morphological <code>opening</code> on an image is defined as an <code>erosion</code> followed by a <code>dilation</code>. Opening can remove small bright spots (i.e. “salt”) and connect small dark cracks. This tends to “open” up (dark) gaps between (bright) features.</p>
+<p>These operations in <code>skimage.morphology</code> are compatible with 3D images and structuring elements. A 2D structuring element cannot be applied to a 3D image, nor can a 3D structuring element be applied to a 2D image.</p>
+<p>These four operations (<code>closing</code>, <code>dilation</code>, <code>erosion</code>, <code>opening</code>) have binary counterparts which are faster to compute than the grayscale algorithms.</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">selem</span> <span class="o">=</span> <span class="n">morphology</span><span class="o">.</span><span class="n">disk</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="n">plane_binary_closing</span> <span class="o">=</span> <span class="n">morphology</span><span class="o">.</span><span class="n">binary_closing</span><span class="p">(</span><span class="n">plane_binary</span><span class="p">,</span> <span class="n">selem</span><span class="o">=</span><span class="n">selem</span><span class="p">)</span>
+<span class="n">plane_binary_dilation</span> <span class="o">=</span> <span class="n">morphology</span><span class="o">.</span><span class="n">binary_dilation</span><span class="p">(</span><span class="n">plane_binary</span><span class="p">,</span> <span class="n">selem</span><span class="o">=</span><span class="n">selem</span><span class="p">)</span>
+<span class="n">plane_binary_erosion</span> <span class="o">=</span> <span class="n">morphology</span><span class="o">.</span><span class="n">binary_erosion</span><span class="p">(</span><span class="n">plane_binary</span><span class="p">,</span> <span class="n">selem</span><span class="o">=</span><span class="n">selem</span><span class="p">)</span>
+<span class="n">plane_binary_opening</span> <span class="o">=</span> <span class="n">morphology</span><span class="o">.</span><span class="n">binary_opening</span><span class="p">(</span><span class="n">plane_binary</span><span class="p">,</span> <span class="n">selem</span><span class="o">=</span><span class="n">selem</span><span class="p">)</span>
+
+<span class="n">_</span><span class="p">,</span> <span class="p">((</span><span class="n">win_top_left</span><span class="p">,</span> <span class="n">win_top_right</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">win_bottom_left</span><span class="p">,</span> <span class="n">win_bottom_right</span><span class="p">))</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+
+<span class="n">sc</span><span class="o">.</span><span class="n">show_plane</span><span class="p">(</span><span class="n">win_top_left</span><span class="p">,</span> <span class="n">plane_binary_erosion</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Binary erosion&#39;</span><span class="p">)</span>
+<span class="n">sc</span><span class="o">.</span><span class="n">show_plane</span><span class="p">(</span><span class="n">win_top_right</span><span class="p">,</span> <span class="n">plane_binary_dilation</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Binary dilation&#39;</span><span class="p">)</span>
+<span class="n">sc</span><span class="o">.</span><span class="n">show_plane</span><span class="p">(</span><span class="n">win_bottom_left</span><span class="p">,</span> <span class="n">plane_binary_closing</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Binary closing&#39;</span><span class="p">)</span>
+<span class="n">sc</span><span class="o">.</span><span class="n">show_plane</span><span class="p">(</span><span class="n">win_bottom_right</span><span class="p">,</span> <span class="n">plane_binary_opening</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Binary opening&#39;</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Morphology operations can be chained together to denoise an image. For example, a <code>closing</code> applied to an <code>opening</code> can remove salt and pepper noise from an image.</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">plane_binary_clipped</span> <span class="o">=</span> <span class="n">plane_rescaled</span> <span class="o">&gt;=</span> <span class="n">filters</span><span class="o">.</span><span class="n">threshold_li</span><span class="p">(</span><span class="n">plane_clipped</span><span class="p">)</span>
+
+<span class="n">plane_despeckled_radius1</span> <span class="o">=</span> <span class="n">morphology</span><span class="o">.</span><span class="n">closing</span><span class="p">(</span>
+    <span class="n">morphology</span><span class="o">.</span><span class="n">opening</span><span class="p">(</span><span class="n">plane_binary_clipped</span><span class="p">,</span> <span class="n">selem</span><span class="o">=</span><span class="n">morphology</span><span class="o">.</span><span class="n">disk</span><span class="p">(</span><span class="mi">1</span><span class="p">)),</span>
+    <span class="n">selem</span><span class="o">=</span><span class="n">morphology</span><span class="o">.</span><span class="n">disk</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="n">plane_despeckled_radius3</span> <span class="o">=</span> <span class="n">morphology</span><span class="o">.</span><span class="n">closing</span><span class="p">(</span>
+    <span class="n">morphology</span><span class="o">.</span><span class="n">opening</span><span class="p">(</span><span class="n">plane_binary_clipped</span><span class="p">,</span> <span class="n">selem</span><span class="o">=</span><span class="n">morphology</span><span class="o">.</span><span class="n">disk</span><span class="p">(</span><span class="mi">3</span><span class="p">)),</span>
+    <span class="n">selem</span><span class="o">=</span><span class="n">morphology</span><span class="o">.</span><span class="n">disk</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="n">_</span><span class="p">,</span> <span class="p">(</span><span class="n">win_left</span><span class="p">,</span> <span class="n">win_center</span><span class="p">,</span> <span class="n">win_right</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+
+<span class="n">sc</span><span class="o">.</span><span class="n">show_plane</span><span class="p">(</span><span class="n">win_left</span><span class="p">,</span> <span class="n">plane_binary_clipped</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Noisy data&#39;</span><span class="p">)</span>
+<span class="n">sc</span><span class="o">.</span><span class="n">show_plane</span><span class="p">(</span><span class="n">win_center</span><span class="p">,</span> <span class="n">plane_despeckled_radius1</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Despeckled, r = 1&#39;</span><span class="p">)</span>
+<span class="n">sc</span><span class="o">.</span><span class="n">show_plane</span><span class="p">(</span><span class="n">win_right</span><span class="p">,</span> <span class="n">plane_despeckled_radius3</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Despeckled, r = 3&#39;</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Functions operating on <a href="https://en.wikipedia.org/wiki/Connected_space">connected components</a> can remove small undesired elements while preserving larger shapes.</p>
+<p><code>skimage.morphology.remove_small_holes</code> fills holes and <code>skimage.morphology.remove_small_objects</code> removes bright regions. Both functions accept a <code>min_size</code> parameter, which is the minimum size (in pixels) of accepted holes or objects. The <code>min_size</code> can be approximated by a cube.</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">width</span> <span class="o">=</span> <span class="mi">20</span>
+
+<span class="n">plane_remove_holes</span> <span class="o">=</span> <span class="n">morphology</span><span class="o">.</span><span class="n">remove_small_holes</span><span class="p">(</span><span class="n">plane_binary</span><span class="p">,</span>
+                                                   <span class="n">width</span> <span class="o">**</span> <span class="mi">3</span><span class="p">)</span>
+
+<span class="c1"># Checking the results.</span>
+<span class="n">_</span><span class="p">,</span> <span class="p">(</span><span class="n">win_left</span><span class="p">,</span> <span class="n">win_right</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+
+<span class="n">sc</span><span class="o">.</span><span class="n">show_plane</span><span class="p">(</span><span class="n">win_left</span><span class="p">,</span> <span class="n">plane_binary</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Binary&#39;</span><span class="p">);</span>
+<span class="n">sc</span><span class="o">.</span><span class="n">show_plane</span><span class="p">(</span><span class="n">win_right</span><span class="p">,</span> <span class="n">plane_remove_holes</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Removing holes&#39;</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">width</span> <span class="o">=</span> <span class="mi">50</span>
+
+<span class="n">plane_remove_objects</span> <span class="o">=</span> <span class="n">morphology</span><span class="o">.</span><span class="n">remove_small_objects</span><span class="p">(</span><span class="n">plane_remove_holes</span><span class="p">,</span>
+                                                       <span class="n">min_size</span><span class="o">=</span><span class="n">width</span><span class="p">)</span>
+
+<span class="c1"># Checking the results.</span>
+<span class="n">_</span><span class="p">,</span> <span class="p">(</span><span class="n">win_left</span><span class="p">,</span> <span class="n">win_right</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+
+<span class="n">sc</span><span class="o">.</span><span class="n">show_plane</span><span class="p">(</span><span class="n">win_left</span><span class="p">,</span> <span class="n">plane_binary</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Binary&#39;</span><span class="p">);</span>
+<span class="n">sc</span><span class="o">.</span><span class="n">show_plane</span><span class="p">(</span><span class="n">win_right</span><span class="p">,</span> <span class="n">plane_remove_objects</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Removing holes&#39;</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="skimage.measure---measuring-image-or-region-properties"><a id="measure" /><a href="https://scikit-image.org/docs/stable/api/skimage.measure.html">skimage.measure</a> - measuring image or region properties<a class="anchor-link" href="#skimage.measure---measuring-image-or-region-properties"> </a></h2><p>Multiple algorithms to label images, or obtain information about discrete regions of an image.</p>
+<ul>
+<li><code>measure.label</code> - Label an image, i.e. identify discrete regions in the image using unique integers.</li>
+<li><code>measure.regionprops</code> - In a labeled image, as returned by <code>label</code>, find various properties of the labeled regions.</li>
+</ul>
+<p>Finding paths from a 2D image, or isosurfaces from a 3D image.</p>
+<ul>
+<li><code>measure.find_contours</code></li>
+<li><code>measure.marching_cubes_lewiner</code></li>
+<li><code>measure.marching_cubes_classic</code></li>
+<li><code>measure.mesh_surface_area</code> - Surface area of 3D mesh from marching cubes.</li>
+<li><code>measure.compare_*</code> - Quantify the difference between two whole images; often used in denoising or restoration.</li>
+</ul>
+<p><strong>RANDom Sample Consensus fitting (RANSAC)</strong> - a powerful, robust approach to fitting a model to data.  It exists here because its initial use was for fitting shapes, but it can also fit transforms.</p>
+<ul>
+<li><code>measure.ransac</code></li>
+<li><code>measure.CircleModel</code></li>
+<li><code>measure.EllipseModel</code></li>
+<li><code>measure.LineModelND</code></li>
+</ul>
+<p><a href="https://en.wikipedia.org/wiki/Image_segmentation">Image segmentation</a> partitions images into regions of interest. Integer labels are assigned to each region to distinguish regions of interest.</p>
+<p>Connected components of the binary image are assigned the same label via <code>skimage.measure.label</code>. Tightly packed cells  connected in the binary image are assigned the same label.</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">skimage</span> <span class="k">import</span> <span class="n">measure</span>  <span class="c1"># skimage&#39;s measure submodule.</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">plane_labels</span> <span class="o">=</span> <span class="n">measure</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">plane_remove_objects</span><span class="p">)</span>
+
+<span class="c1"># Checking the results.</span>
+<span class="n">_</span><span class="p">,</span> <span class="p">(</span><span class="n">win_left</span><span class="p">,</span> <span class="n">win_center</span><span class="p">,</span> <span class="n">win_right</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+
+<span class="n">sc</span><span class="o">.</span><span class="n">show_plane</span><span class="p">(</span><span class="n">win_left</span><span class="p">,</span> <span class="n">plane</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Original&#39;</span><span class="p">)</span>
+<span class="n">sc</span><span class="o">.</span><span class="n">show_plane</span><span class="p">(</span><span class="n">win_center</span><span class="p">,</span> <span class="n">plane_labels</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;nipy_spectral&#39;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Labels&#39;</span><span class="p">)</span>
+<span class="n">sc</span><span class="o">.</span><span class="n">show_plane</span><span class="p">(</span><span class="n">win_right</span><span class="p">,</span> <span class="n">plane_labels</span> <span class="o">==</span> <span class="mi">8</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Label = 8&#39;</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>A better segmentation would assign different labels to disjoint regions in the original image.</p>
+<p><a href="https://en.wikipedia.org/wiki/Watershed_%28image_processing%29">Watershed segmentation</a> can distinguish touching objects. Markers are placed at local minima and expanded outward until there is a collision with markers from another region. The inverse intensity image transforms bright cell regions into basins which should be filled.</p>
+<p>In declumping, markers are generated from the distance function. Points furthest from an edge have the highest intensity and should be identified as markers using <code>skimage.feature.peak_local_max</code>. Regions with pinch points should be assigned multiple markers.</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">plane_distance</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">distance_transform_edt</span><span class="p">(</span><span class="n">plane_remove_objects</span><span class="p">)</span>
+
+<span class="n">_</span><span class="p">,</span> <span class="n">win</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+<span class="n">sc</span><span class="o">.</span><span class="n">show_plane</span><span class="p">(</span><span class="n">win</span><span class="p">,</span> <span class="n">plane_distance</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;viridis&#39;</span><span class="p">);</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="skimage.feature---extract-features-from-an-image"><a href="https://scikit-image.org/docs/stable/api/skimage.feature.html">skimage.feature</a> - extract features from an image<a id="feature" /><a class="anchor-link" href="#skimage.feature---extract-features-from-an-image"> </a></h2><p>This submodule presents a diverse set of tools to identify or extract certain features from images, including tools for</p>
+<ul>
+<li>Edge detection: <code>feature.canny</code></li>
+<li>Corner detection:<ul>
+<li><code>feature.corner_kitchen_rosenfeld</code></li>
+<li><code>feature.corner_harris</code></li>
+<li><code>feature.corner_shi_tomasi</code></li>
+<li><code>feature.corner_foerstner</code></li>
+<li><code>feature.subpix</code></li>
+<li><code>feature.corner_moravec</code></li>
+<li><code>feature.corner_fast</code></li>
+<li><code>feature.corner_orientations</code></li>
+</ul>
+</li>
+<li>Blob detection<ul>
+<li><code>feature.blob_dog</code></li>
+<li><code>feature.blob_doh</code></li>
+<li><code>feature.blob_log</code></li>
+</ul>
+</li>
+<li>Texture<ul>
+<li><code>feature.greycomatrix</code></li>
+<li><code>feature.greycoprops</code></li>
+<li><code>feature.local_binary_pattern</code></li>
+<li><code>feature.multiblock_lbp</code></li>
+</ul>
+</li>
+<li>Peak finding: <code>feature.peak_local_max</code></li>
+<li>Object detction<ul>
+<li><code>feature.hog</code></li>
+<li><code>feature.match_template</code></li>
+</ul>
+</li>
+<li>Stereoscopic depth estimation: <code>feature.daisy</code></li>
+<li>Feature matching<ul>
+<li><code>feature.ORB</code></li>
+<li><code>feature.BRIEF</code></li>
+<li><code>feature.CENSURE</code></li>
+<li><code>feature.match_descriptors</code></li>
+<li><code>feature.plot_matches</code></li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">skimage</span> <span class="k">import</span> <span class="n">feature</span>  <span class="c1"># skimage&#39;s feature submodule.</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">peak_local_max</span> <span class="o">=</span> <span class="n">feature</span><span class="o">.</span><span class="n">peak_local_max</span><span class="p">(</span>
+    <span class="n">plane_distance</span><span class="p">,</span>
+    <span class="n">footprint</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">15</span><span class="p">,</span> <span class="mi">15</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">bool</span><span class="p">),</span>
+    <span class="n">indices</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">labels</span><span class="o">=</span><span class="n">measure</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">plane_remove_objects</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="n">plane_markers</span> <span class="o">=</span> <span class="n">measure</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">peak_local_max</span><span class="p">)</span>
+
+<span class="n">plane_labels</span> <span class="o">=</span> <span class="n">morphology</span><span class="o">.</span><span class="n">watershed</span><span class="p">(</span>
+    <span class="n">plane_rescaled</span><span class="p">,</span> 
+    <span class="n">plane_markers</span><span class="p">,</span> 
+    <span class="n">mask</span><span class="o">=</span><span class="n">plane_remove_objects</span>
+<span class="p">)</span>
+
+<span class="c1"># Checking the results.</span>
+<span class="n">_</span><span class="p">,</span> <span class="p">(</span><span class="n">win_left</span><span class="p">,</span> <span class="n">win_right</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+
+<span class="n">sc</span><span class="o">.</span><span class="n">show_plane</span><span class="p">(</span><span class="n">win_left</span><span class="p">,</span> <span class="n">plane</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Original&#39;</span><span class="p">)</span>
+<span class="n">sc</span><span class="o">.</span><span class="n">show_plane</span><span class="p">(</span><span class="n">win_right</span><span class="p">,</span> <span class="n">plane_labels</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;nipy_spectral&#39;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Watershed labels&#39;</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>After watershed, we have better disambiguation between internal cells.</p>
+<p>The watershed algorithm falsely detected subregions in a few cells. This is referred to as oversegmentation.</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">_</span><span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+<span class="n">sc</span><span class="o">.</span><span class="n">show_plane</span><span class="p">(</span><span class="n">axis</span><span class="p">,</span> <span class="n">plane_labels</span><span class="p">[</span><span class="mi">50</span><span class="p">:</span><span class="mi">100</span><span class="p">,</span> <span class="mi">20</span><span class="p">:</span><span class="mi">100</span><span class="p">],</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;nipy_spectral&#39;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Oversegmented labels&#39;</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Plotting the markers on the distance image reveals the reason for oversegmentation. Cells with multiple markers will be assigned multiple labels, and oversegmented. It can be observed that cells with a uniformly increasing distance map are assigned a single marker near their center. Cells with uneven distance maps are assigned multiple markers, indicating the presence of multiple local maxima.</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">12</span><span class="p">))</span>
+
+<span class="n">vmin</span> <span class="o">=</span> <span class="n">plane_distance</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+<span class="n">vmax</span> <span class="o">=</span> <span class="n">plane_distance</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">plane_distance</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">)</span>
+    
+<span class="n">peaks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">peak_local_max</span><span class="p">)</span>
+    
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">peaks</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">peaks</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;r.&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([])</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([])</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">_</span><span class="p">,</span> <span class="p">(</span><span class="n">win_left</span><span class="p">,</span> <span class="n">win_center</span><span class="p">,</span> <span class="n">win_right</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+
+<span class="n">sc</span><span class="o">.</span><span class="n">show_plane</span><span class="p">(</span><span class="n">win_left</span><span class="p">,</span> <span class="n">plane_remove_objects</span><span class="p">[</span><span class="mi">10</span><span class="p">:</span><span class="mi">100</span><span class="p">,</span> <span class="mi">190</span><span class="p">:</span><span class="mi">253</span><span class="p">])</span>
+<span class="n">sc</span><span class="o">.</span><span class="n">show_plane</span><span class="p">(</span><span class="n">win_center</span><span class="p">,</span> <span class="n">plane_distance</span><span class="p">[</span><span class="mi">10</span><span class="p">:</span><span class="mi">100</span><span class="p">,</span> <span class="mi">190</span><span class="p">:</span><span class="mi">253</span><span class="p">])</span>
+
+<span class="n">features</span> <span class="o">=</span> <span class="n">feature</span><span class="o">.</span><span class="n">peak_local_max</span><span class="p">(</span><span class="n">plane_distance</span><span class="p">[</span><span class="mi">10</span><span class="p">:</span><span class="mi">100</span><span class="p">,</span> <span class="mi">190</span><span class="p">:</span><span class="mi">253</span><span class="p">])</span>
+<span class="n">win_center</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">features</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">features</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;r.&#39;</span><span class="p">)</span>
+
+<span class="c1"># Improve feature selection by blurring, using a larger footprint</span>
+<span class="c1"># in `peak_local_max`, etc.</span>
+
+<span class="n">smooth_distance</span> <span class="o">=</span> <span class="n">filters</span><span class="o">.</span><span class="n">gaussian</span><span class="p">(</span><span class="n">plane_distance</span><span class="p">[</span><span class="mi">10</span><span class="p">:</span><span class="mi">100</span><span class="p">,</span> <span class="mi">190</span><span class="p">:</span><span class="mi">253</span><span class="p">],</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">sc</span><span class="o">.</span><span class="n">show_plane</span><span class="p">(</span><span class="n">win_right</span><span class="p">,</span> <span class="n">smooth_distance</span><span class="p">)</span>
+<span class="n">features</span> <span class="o">=</span> <span class="n">feature</span><span class="o">.</span><span class="n">peak_local_max</span><span class="p">(</span>
+    <span class="n">smooth_distance</span>
+<span class="p">)</span>
+<span class="n">win_right</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">features</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">features</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;bx&#39;</span><span class="p">);</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">smooth_distance</span> <span class="o">=</span> <span class="n">filters</span><span class="o">.</span><span class="n">gaussian</span><span class="p">(</span><span class="n">plane_distance</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">peak_local_max</span> <span class="o">=</span> <span class="n">feature</span><span class="o">.</span><span class="n">peak_local_max</span><span class="p">(</span>
+    <span class="n">smooth_distance</span><span class="p">,</span>
+    <span class="n">footprint</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">7</span><span class="p">,</span> <span class="mi">7</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">bool</span><span class="p">),</span>
+    <span class="n">indices</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">labels</span><span class="o">=</span><span class="n">measure</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">plane_remove_objects</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="n">plane_markers</span> <span class="o">=</span> <span class="n">measure</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">peak_local_max</span><span class="p">)</span>
+
+<span class="n">plane_labels</span> <span class="o">=</span> <span class="n">morphology</span><span class="o">.</span><span class="n">watershed</span><span class="p">(</span>
+    <span class="n">plane_rescaled</span><span class="p">,</span> 
+    <span class="n">plane_markers</span><span class="p">,</span> 
+    <span class="n">mask</span><span class="o">=</span><span class="n">plane_remove_objects</span>
+<span class="p">)</span>
+
+<span class="c1"># Checking the results.</span>
+<span class="n">_</span><span class="p">,</span> <span class="p">(</span><span class="n">win_left</span><span class="p">,</span> <span class="n">win_right</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+
+<span class="n">sc</span><span class="o">.</span><span class="n">show_plane</span><span class="p">(</span><span class="n">win_left</span><span class="p">,</span> <span class="n">plane</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Original&#39;</span><span class="p">)</span>
+<span class="n">sc</span><span class="o">.</span><span class="n">show_plane</span><span class="p">(</span><span class="n">win_right</span><span class="p">,</span> <span class="n">plane_labels</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;nipy_spectral&#39;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Watershed labels&#39;</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<div class="alert alert-success">
+
+<p><strong>Exercise: <font color='red'>(⏰ 5 min)</font></strong> Please help me generate a better result!</p>
+<p>Your task is:</p>
+<ul>
+<li>Change <code>sigma</code> and <code>footprint</code> to generate a better segmentation.</li>
+</ul>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">smooth_distance</span> <span class="o">=</span> <span class="n">filters</span><span class="o">.</span><span class="n">gaussian</span><span class="p">(</span><span class="n">plane_distance</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=...</span><span class="p">)</span>
+<span class="n">peak_local_max</span> <span class="o">=</span> <span class="n">feature</span><span class="o">.</span><span class="n">peak_local_max</span><span class="p">(</span>
+    <span class="n">smooth_distance</span><span class="p">,</span>
+    <span class="n">footprint</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">bool</span><span class="p">),</span>
+    <span class="n">indices</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">labels</span><span class="o">=</span><span class="n">measure</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">plane_remove_objects</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="n">plane_markers</span> <span class="o">=</span> <span class="n">measure</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">peak_local_max</span><span class="p">)</span>
+
+<span class="n">plane_labels</span> <span class="o">=</span> <span class="n">morphology</span><span class="o">.</span><span class="n">watershed</span><span class="p">(</span>
+    <span class="n">plane_rescaled</span><span class="p">,</span> 
+    <span class="n">plane_markers</span><span class="p">,</span> 
+    <span class="n">mask</span><span class="o">=</span><span class="n">plane_remove_objects</span>
+<span class="p">)</span>
+
+<span class="c1"># Checking the results.</span>
+<span class="n">_</span><span class="p">,</span> <span class="p">(</span><span class="n">win_left</span><span class="p">,</span> <span class="n">win_right</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+
+<span class="n">sc</span><span class="o">.</span><span class="n">show_plane</span><span class="p">(</span><span class="n">win_left</span><span class="p">,</span> <span class="n">plane</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Original&#39;</span><span class="p">)</span>
+<span class="n">sc</span><span class="o">.</span><span class="n">show_plane</span><span class="p">(</span><span class="n">win_right</span><span class="p">,</span> <span class="n">plane_labels</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;nipy_spectral&#39;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Watershed labels&#39;</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="skimage.segmentation---identification-of-regions-of-interest"><a id="segmentation" /><a href="https://scikit-image.org/docs/stable/api/skimage.segmentation.html">skimage.segmentation</a> - identification of regions of interest<a class="anchor-link" href="#skimage.segmentation---identification-of-regions-of-interest"> </a></h2><p>One of the key image analysis tasks is identifying regions of interest.  These could be a person, an object, certain features of an animal, microscopic image, or stars.  Segmenting an image is the process of determining where these things you want are in your images.</p>
+<p>Segmentation has two overarching categories:</p>
+<p><strong>Supervised</strong> - must provide some guidance (seed points or initial conditions)</p>
+<ul>
+<li><code>segmentation.random_walker</code></li>
+<li><code>segmentation.active_contour</code></li>
+<li><code>segmentation.watershed</code></li>
+<li><code>segmentation.flood_fill</code></li>
+<li><code>segmentation.flood</code></li>
+</ul>
+<p><strong>Unsupervised</strong> - no human input</p>
+<ul>
+<li><code>segmentation.slic</code></li>
+<li><code>segmentation.felzenszwalb</code></li>
+<li><code>segmentation.chan_vese</code></li>
+</ul>
+<p>There are also some supervised and unsupervised thresholding algorithms in <code>filters</code>. There is a <a href="https://github.com/scikit-image/skimage-tutorials/blob/master/lectures/4_segmentation.ipynb">segmentation lecture</a> (<a href="https://github.com/scikit-image/skimage-tutorials/blob/master/lectures/solutions/4_segmentation.ipynb">and its solution</a>) you may peruse, as well as many <a href="https://scikit-image.org/docs/stable/auto_examples/index.html#segmentation-of-objects">gallery examples</a> which illustrate all of these segmentation methods.</p>
+<p><a href="https://en.wikipedia.org/wiki/Feature_extraction">Feature extraction</a> reduces data required to describe an image or objects by measuring informative features. These include features such as area or volume, bounding boxes, and intensity statistics.</p>
+<p>Before measuring objects, it helps to clear objects from the image border. Measurements should only be collected for objects entirely contained in the image.</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">skimage</span> <span class="k">import</span> <span class="n">segmentation</span>  <span class="c1"># skimage&#39;s segmentation submodule.</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">plane_labels_inner</span> <span class="o">=</span> <span class="n">segmentation</span><span class="o">.</span><span class="n">clear_border</span><span class="p">(</span><span class="n">plane_labels</span><span class="p">)</span>
+<span class="n">plane_labels_inner</span> <span class="o">=</span> <span class="n">morphology</span><span class="o">.</span><span class="n">remove_small_objects</span><span class="p">(</span><span class="n">plane_labels_inner</span><span class="p">,</span> <span class="n">min_size</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Interior labels: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">plane_labels_inner</span><span class="p">)))</span>
+
+<span class="n">_</span><span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+<span class="n">sc</span><span class="o">.</span><span class="n">show_plane</span><span class="p">(</span><span class="n">axis</span><span class="p">,</span> <span class="n">plane_labels_inner</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;nipy_spectral&#39;</span><span class="p">);</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>After clearing the border, the object labels are no longer sequentially increasing. The labels can be renumbered such that there are no jumps in the list of image labels:</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">plane_relabeled</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">segmentation</span><span class="o">.</span><span class="n">relabel_sequential</span><span class="p">(</span><span class="n">plane_labels_inner</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Relabeled labels: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">plane_relabeled</span><span class="p">)))</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><code>skimage.measure.regionprops</code> automatically measures many labeled image features. Optionally, an <code>intensity_image</code> can be supplied and intensity features are extracted per object. It's good practice to make measurements on the original image.</p>
+<p>The list below shows supported 2D measurements.</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">properties</span> <span class="o">=</span> <span class="n">measure</span><span class="o">.</span><span class="n">regionprops</span><span class="p">(</span><span class="n">plane_relabeled</span><span class="p">,</span> <span class="n">intensity_image</span><span class="o">=</span><span class="n">plane</span><span class="p">)</span>
+<span class="n">props_first_region</span> <span class="o">=</span> <span class="n">properties</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="n">supported</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">]</span> 
+
+<span class="k">for</span> <span class="n">prop</span> <span class="ow">in</span> <span class="n">props_first_region</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">props_first_region</span><span class="p">[</span><span class="n">prop</span><span class="p">]</span>
+        <span class="n">supported</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prop</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">NotImplementedError</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Supported 2D properties:&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\t</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">supported</span><span class="p">))</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><code>skimage.measure.regionprops</code> ignores the 0 label, which represents the background.</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Measured regions: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">([</span><span class="n">prop</span><span class="o">.</span><span class="n">label</span> <span class="k">for</span> <span class="n">prop</span> <span class="ow">in</span> <span class="n">properties</span><span class="p">]))</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">plane_areas</span> <span class="o">=</span> <span class="p">[</span><span class="n">prop</span><span class="o">.</span><span class="n">area</span> <span class="k">for</span> <span class="n">prop</span> <span class="ow">in</span> <span class="n">properties</span><span class="p">]</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Total pixels: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">plane_areas</span><span class="p">))</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Collected measurements can be further reduced by computing per-image statistics such as total, minimum, maximum, mean, and standard deviation.</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Area statistics</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39; * Total: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">plane_areas</span><span class="p">)))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39; * Min: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">plane_areas</span><span class="p">)))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39; * Max: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">plane_areas</span><span class="p">)))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39; * Mean: </span><span class="si">{:0.2f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">plane_areas</span><span class="p">)))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39; * Standard deviation: </span><span class="si">{:0.2f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">plane_areas</span><span class="p">)))</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<div class="alert alert-success">
+
+<p><strong>Exercise: <font color='red'>(⏰ 5 min)</font></strong> Let's check other properties.</p>
+<p>Your task is:</p>
+<ul>
+<li>Use <code>regionprops</code> and check other properties for the labeled regions. Some examples: <code>centroid</code> and <code>equivalent_diameter</code>.</li>
+</ul>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Going-beyond">Going beyond<a class="anchor-link" href="#Going-beyond"> </a></h2><p>[1] A tour/guide on scikit-image's submodules: <a href="https://github.com/scikit-image/skimage-tutorials/blob/master/lectures/tour_of_skimage.ipynb">https://github.com/scikit-image/skimage-tutorials/blob/master/lectures/tour_of_skimage.ipynb</a></p>
+<p>[2] scikit-image's gallery examples: <a href="https://scikit-image.org/docs/stable/auto_examples/">https://scikit-image.org/docs/stable/auto_examples/</a></p>
+
+</div>
+</div>
+</div>
+</div>
+
+ 
+
+
+</main>

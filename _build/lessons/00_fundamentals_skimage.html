@@ -1,0 +1,988 @@
+---
+redirect_from:
+  - "/lessons/00-fundamentals-skimage"
+interact_link: content/lessons/00_fundamentals_skimage.ipynb
+kernel_name: python3
+has_widgets: false
+title: |-
+  Fundamentals of scikit-image
+prev_page:
+  url: /intro/setup.html
+  title: |-
+    Setup and installation
+next_page:
+  url: /lessons/01_2d_processing.html
+  title: |-
+    2D processing
+comment: "***PROGRAMMATICALLY GENERATED, DO NOT EDIT. SEE ORIGINAL FILES IN /content***"
+---
+<main class="jupyter-page">
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<div style='font-size: 200%; line-height: 2;'>
+To participate, you'll need to git clone (or download the .zip from GitHub):
+
+<p>https://github.com/imagexd/2019-tutorial-skimage</p>
+</div><p>You can do that in git using:</p><pre>git clone --depth=1 https://github.com/imagexd/2019-tutorial-skimage</pre><div style='font-size: 200%; line-height: 1.5;'>
+If you have already cloned the material, please issue `git pull` now and reload the notebook to ensure that you have the latest updates.
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="o">%</span><span class="k">matplotlib</span> inline
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li><a href="https://scikit-image.org">https://scikit-image.org</a></li>
+<li>Take a look at the gallery, API docs</li>
+<li>The underlying stack: NumPy, SciPy (especially <code>scipy.ndimage</code>), Cython</li>
+</ul>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>But, before we can start using <code>scikit-image</code>, we need to understand how images are represented. For this, we will use NumPy.</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="A-quick-5-minute-quiz,-to-refresh-our-NumPy-skills!">A quick 5-minute quiz, to refresh our NumPy skills!<a class="anchor-link" href="#A-quick-5-minute-quiz,-to-refresh-our-NumPy-skills!"> </a></h3>
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Start with:</p>
+<p><code>import numpy as np</code></p>
+<p>Then answer:</p>
+<ol>
+<li>What version of NumPy do you have installed? (Hint: <code>np.__version__</code>)</li>
+<li>How do I construct a 300x500 array of zeros?</li>
+<li>How do I generate an array with the numbers from 0 to 9?</li>
+<li>How do I take the square of this array?</li>
+<li>What is the data-type of this array? (Hint: <code>x.dtype</code>)  What is the data-type of the array <code>[1, 2, 3]</code>?</li>
+<li>What is the shape of the following array: <code>[[1, 2, 3], [4, 5, 6]]</code></li>
+<li>What, do you predict, is the result of <code>[[1, 2, 3], [4, 5, 6]]</code> + <code>[10, 11, 12]</code>? (Hint: broadcasting)</li>
+<li>What, do you predict, is the result of <code>np.array([1,2,3], dtype=np.uint8) - 2</code>? (Hint: the 'u' stands for unsigned)</li>
+<li>What, do you predict, is the result of <code>x = np.ones((5, 1)); x @ x.T</code> (Hint: @ is matrix multiplication)</li>
+<li>What, do you predict, is the result of <code>x = np.array([1, 2, 3]); x[x &lt; 3]</code> (Hint: what is <code>x &gt; 3</code>?)</li>
+</ol>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Images-are-numpy-arrays">Images are numpy arrays<a class="anchor-link" href="#Images-are-numpy-arrays"> </a></h1>
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Images are represented in <code>scikit-image</code> using standard <code>numpy</code> arrays.  This allows maximum inter-operability with other libraries in the scientific Python ecosystem, such as <code>matplotlib</code> and <code>scipy</code>.</p>
+<p>Let's see how to build a grayscale image as a 2D array:</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="k">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">random_image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">([</span><span class="mi">500</span><span class="p">,</span> <span class="mi">500</span><span class="p">])</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">random_image</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">();</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The same holds for "real-world" images:</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">skimage</span> <span class="k">import</span> <span class="n">data</span>
+
+<span class="n">coins</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">coins</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Type:&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">coins</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;dtype:&#39;</span><span class="p">,</span> <span class="n">coins</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;shape:&#39;</span><span class="p">,</span> <span class="n">coins</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">coins</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">);</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>A color image is a 3D array, where the last dimension has size 3 and represents the red, green, and blue channels:</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">cat</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">chelsea</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Shape:&quot;</span><span class="p">,</span> <span class="n">cat</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Values min/max:&quot;</span><span class="p">,</span> <span class="n">cat</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">cat</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">cat</span><span class="p">);</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>These are <em>just NumPy arrays</em>. E.g., we can make a red square by using standard array slicing and manipulation:</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">cat</span><span class="p">[</span><span class="mi">10</span><span class="p">:</span><span class="mi">110</span><span class="p">,</span> <span class="mi">10</span><span class="p">:</span><span class="mi">110</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>  <span class="c1"># [red, green, blue]</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">cat</span><span class="p">);</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Images can also include transparent regions by adding a 4th dimension, called an <em>alpha layer</em>.</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Other-shapes,-and-their-meanings">Other shapes, and their meanings<a class="anchor-link" href="#Other-shapes,-and-their-meanings"> </a></h3><table>
+<thead><tr>
+<th style="text-align:left">Image type</th>
+<th style="text-align:left">Coordinates</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">2D grayscale</td>
+<td style="text-align:left">(row, column)</td>
+</tr>
+<tr>
+<td style="text-align:left">2D multichannel</td>
+<td style="text-align:left">(row, column, channel)</td>
+</tr>
+<tr>
+<td style="text-align:left">3D grayscale (or volumetric)</td>
+<td style="text-align:left">(plane, row, column)</td>
+</tr>
+<tr>
+<td style="text-align:left">3D multichannel</td>
+<td style="text-align:left">(plane, row, column, channel)</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Displaying-images-using-matplotlib">Displaying images using matplotlib<a class="anchor-link" href="#Displaying-images-using-matplotlib"> </a></h2>
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">skimage</span> <span class="k">import</span> <span class="n">data</span>
+
+<span class="n">img0</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">chelsea</span><span class="p">()</span>
+<span class="n">img1</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">rocket</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="n">f</span><span class="p">,</span> <span class="p">(</span><span class="n">ax0</span><span class="p">,</span> <span class="n">ax1</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+
+<span class="n">ax0</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img0</span><span class="p">)</span>
+<span class="n">ax0</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Cat&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+<span class="n">ax0</span><span class="o">.</span><span class="n">scatter</span><span class="p">([</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">40</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;white&#39;</span><span class="p">)</span>
+<span class="n">ax0</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
+
+<span class="n">ax1</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img1</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Rocket&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Launching position $\alpha=320$&#39;</span><span class="p">)</span>
+
+<span class="n">ax1</span><span class="o">.</span><span class="n">vlines</span><span class="p">([</span><span class="mi">202</span><span class="p">,</span> <span class="mi">300</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="n">img1</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">colors</span><span class="o">=</span><span class="s1">&#39;magenta&#39;</span><span class="p">,</span>
+           <span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Side tower position&#39;</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">168</span><span class="p">,</span> <span class="mi">190</span><span class="p">,</span> <span class="mi">200</span><span class="p">],</span> <span class="p">[</span><span class="mi">400</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">300</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;white&#39;</span><span class="p">,</span>
+         <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Side angle&#39;</span><span class="p">)</span>
+
+<span class="n">ax1</span><span class="o">.</span><span class="n">legend</span><span class="p">();</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>For more on plotting, see the <a href="https://matplotlib.org/gallery/index.html#images-contours-and-fields">Matplotlib documentation</a> and <a href="https://matplotlib.org/api/pyplot_summary.html">pyplot API</a>.</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Data-types-and-image-values">Data types and image values<a class="anchor-link" href="#Data-types-and-image-values"> </a></h2><p>In literature, one finds different conventions for representing image values:</p>
+
+<pre><code>  0 - 255   where  0 is black, 255 is white
+  0 - 1     where  0 is black, 1 is white</code></pre>
+<p><code>scikit-image</code> supports both conventions--the choice is determined by the
+data-type of the array.</p>
+<p>E.g., here, I generate two valid images:</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">linear0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2500</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">))</span>
+<span class="n">linear1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">2500</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Linear0:&quot;</span><span class="p">,</span> <span class="n">linear0</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">linear0</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">linear0</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Linear1:&quot;</span><span class="p">,</span> <span class="n">linear1</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">linear1</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">linear1</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax0</span><span class="p">,</span> <span class="n">ax1</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">15</span><span class="p">))</span>
+<span class="n">ax0</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">linear0</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">linear1</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">);</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The library is designed in such a way that any data-type is allowed as input,
+as long as the range is correct (0-1 for floating point images, 0-255 for unsigned bytes,
+0-65535 for unsigned 16-bit integers).</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>You can convert images between different representations by using <code>img_as_float</code>, <code>img_as_ubyte</code>, etc.:</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">skimage</span> <span class="k">import</span> <span class="n">img_as_float</span><span class="p">,</span> <span class="n">img_as_ubyte</span>
+
+<span class="n">image</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">chelsea</span><span class="p">()</span>
+
+<span class="n">image_ubyte</span> <span class="o">=</span> <span class="n">img_as_ubyte</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+<span class="n">image_float</span> <span class="o">=</span> <span class="n">img_as_float</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;type, min, max:&quot;</span><span class="p">,</span> <span class="n">image_ubyte</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">image_ubyte</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">image_ubyte</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;type, min, max:&quot;</span><span class="p">,</span> <span class="n">image_float</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">image_float</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">image_float</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;231/255 =&quot;</span><span class="p">,</span> <span class="mi">231</span><span class="o">/</span><span class="mf">255.</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Your code would then typically look like this:</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">my_function</span><span class="p">(</span><span class="n">any_image</span><span class="p">):</span>
+   <span class="n">float_image</span> <span class="o">=</span> <span class="n">img_as_float</span><span class="p">(</span><span class="n">any_image</span><span class="p">)</span>
+   <span class="c1"># Proceed, knowing image is in [0, 1]</span>
+</pre></div>
+<p>We recommend using the floating point representation, given that
+<code>scikit-image</code> mostly uses that format internally.</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Image-I/O">Image I/O<a class="anchor-link" href="#Image-I/O"> </a></h2><p>Mostly, we won't be using input images from the scikit-image example data sets.  Those images are typically stored in JPEG or PNG format.  Since scikit-image operates on NumPy arrays, <em>any</em> image reader library that provides arrays will do.  Options include imageio, matplotlib, pillow, etc.</p>
+<p>scikit-image conveniently wraps many of these in the <code>io</code> submodule, and will use whichever of the libraries mentioned above are installed:</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">skimage</span> <span class="k">import</span> <span class="n">io</span>
+
+<span class="n">image</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="s1">&#39;data/balloon.jpg&#39;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">image</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">image</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">image</span><span class="p">);</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We also have the ability to load multiple images, or multi-layer TIFF images:</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">skimage</span> <span class="k">import</span> <span class="n">data_dir</span>
+
+<span class="o">!</span>ls <span class="nv">$data_dir</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">ic</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">ImageCollection</span><span class="p">(</span><span class="n">data_dir</span> <span class="o">+</span> <span class="s1">&#39;/*.png&#39;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Type:&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">ic</span><span class="p">))</span>
+
+<span class="n">ic</span><span class="o">.</span><span class="n">files</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+
+<span class="n">f</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">ic</span><span class="p">)</span> <span class="o">//</span> <span class="mi">5</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+
+<span class="c1"># subplots returns the figure and an array of axes</span>
+<span class="c1"># we use `axes.ravel()` to turn these into a list</span>
+<span class="n">axes</span> <span class="o">=</span> <span class="n">axes</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">axes</span><span class="p">:</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">image</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ic</span><span class="p">):</span>
+    <span class="n">axes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">)</span>
+    <span class="n">axes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">ic</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+    
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Exercise:-draw-the-letter-H"><span class="exercize">Exercise: draw the letter H</span><a class="anchor-link" href="#Exercise:-draw-the-letter-H"> </a></h2><p>Define a function that takes as input an RGB image and a pair of coordinates (row, column), and returns a copy with a green letter H overlaid at those coordinates. The coordinates point to the top-left corner of the H.</p>
+<p>The arms and strut of the H should have a width of 3 pixels, and the H itself should have a height of 24 pixels and width of 20 pixels.</p>
+<p>Start with the following template:</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">draw_H</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">)):</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    
+    <span class="o">...</span>
+    
+    <span class="k">return</span> <span class="n">out</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Test your function like so:</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">cat</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">chelsea</span><span class="p">()</span>
+<span class="n">cat_H</span> <span class="o">=</span> <span class="n">draw_H</span><span class="p">(</span><span class="n">cat</span><span class="p">,</span> <span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="o">-</span><span class="mi">50</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">cat_H</span><span class="p">);</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Exercise:-visualizing-RGB-channels"><span class="exercize">Exercise: visualizing RGB channels</span><a class="anchor-link" href="#Exercise:-visualizing-RGB-channels"> </a></h2><p>Display the different color channels of the image along (each as a gray-scale image).  Start with the following template:</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># --- read in the image ---</span>
+
+<span class="n">image</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="s1">&#39;data/Bells-Beach.jpg&#39;</span><span class="p">)</span>
+
+<span class="c1"># --- assign each color channel to a different variable ---</span>
+
+<span class="n">r</span> <span class="o">=</span> <span class="o">...</span>
+<span class="n">g</span> <span class="o">=</span> <span class="o">...</span>
+<span class="n">b</span> <span class="o">=</span> <span class="o">...</span>
+
+<span class="c1"># --- display the image and r, g, b channels ---</span>
+
+<span class="n">f</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">axes</span><span class="p">:</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
+
+<span class="p">(</span><span class="n">ax_r</span><span class="p">,</span> <span class="n">ax_g</span><span class="p">,</span> <span class="n">ax_b</span><span class="p">,</span> <span class="n">ax_color</span><span class="p">)</span> <span class="o">=</span> <span class="n">axes</span>
+    
+<span class="n">ax_r</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">)</span>
+<span class="n">ax_r</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;red channel&#39;</span><span class="p">)</span>
+
+<span class="n">ax_g</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">)</span>
+<span class="n">ax_g</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;green channel&#39;</span><span class="p">)</span>
+
+<span class="n">ax_b</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">)</span>
+<span class="n">ax_b</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;blue channel&#39;</span><span class="p">)</span>
+
+<span class="c1"># --- Here, we stack the R, G, and B layers again</span>
+<span class="c1">#     to form a color image ---</span>
+<span class="n">ax_color</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">r</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">b</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+<span class="n">ax_color</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;all channels&#39;</span><span class="p">);</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now, take a look at the following R, G, and B channels.  How would their combination look? (Write some code to confirm your intuition.)</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">skimage</span> <span class="k">import</span> <span class="n">draw</span>
+
+<span class="n">red</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">300</span><span class="p">,</span> <span class="mi">300</span><span class="p">))</span>
+<span class="n">green</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">300</span><span class="p">,</span> <span class="mi">300</span><span class="p">))</span>
+<span class="n">blue</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">300</span><span class="p">,</span> <span class="mi">300</span><span class="p">))</span>
+
+<span class="n">r</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="n">red</span><span class="p">[</span><span class="n">r</span><span class="p">,</span> <span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="n">r</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="n">green</span><span class="p">[</span><span class="n">r</span><span class="p">,</span> <span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="n">r</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="n">blue</span><span class="p">[</span><span class="n">r</span><span class="p">,</span> <span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="n">f</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="k">for</span> <span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">channel</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">axes</span><span class="p">,</span> <span class="p">[</span><span class="n">red</span><span class="p">,</span> <span class="n">green</span><span class="p">,</span> <span class="n">blue</span><span class="p">]):</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Hint: np.stack([...], axis=2)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Exercise:-Convert-to-grayscale-(&quot;black-and-white&quot;)">Exercise: Convert to grayscale ("black and white")<a class="anchor-link" href="#Exercise:-Convert-to-grayscale-(&quot;black-and-white&quot;)"> </a></h2><p>The <em>relative luminance</em> of an image is the intensity of light coming from each point. Different colors contribute differently to the luminance: it's very hard to have a bright, pure blue, for example. So, starting from an RGB image, the luminance is given by:</p>
+$$
+Y = 0.2126R + 0.7152G + 0.0722B
+$$<p>Use Python 3.5's matrix multiplication, <code>@</code>, to convert an RGB image to a grayscale luminance image according to the formula above.</p>
+<p>Compare your results to that obtained with <code>skimage.color.rgb2gray</code>.</p>
+<p>Change the coefficients to 1/3 (i.e., take the mean of the red, green, and blue channels, to see how that approach compares with <code>rgb2gray</code>).</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">skimage</span> <span class="k">import</span> <span class="n">color</span><span class="p">,</span> <span class="n">img_as_float</span>
+
+<span class="n">image</span> <span class="o">=</span> <span class="n">img_as_float</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="s1">&#39;data/balloon.jpg&#39;</span><span class="p">))</span>
+
+<span class="n">gray</span> <span class="o">=</span> <span class="n">color</span><span class="o">.</span><span class="n">rgb2gray</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+<span class="n">my_gray</span> <span class="o">=</span> <span class="o">...</span>
+
+<span class="c1"># --- display the results ---</span>
+
+<span class="n">f</span><span class="p">,</span> <span class="p">(</span><span class="n">ax0</span><span class="p">,</span> <span class="n">ax1</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+
+<span class="n">ax0</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">gray</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">)</span>
+<span class="n">ax0</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;skimage.color.rgb2gray&#39;</span><span class="p">)</span>
+
+<span class="n">ax1</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">my_gray</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;my rgb2gray&#39;</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Just-for-fun">Just for fun<a class="anchor-link" href="#Just-for-fun"> </a></h2>
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Demo:-skimage-+-keras">Demo: skimage + keras<a class="anchor-link" href="#Demo:-skimage-+-keras"> </a></h3>
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">tensorflow.keras.applications.inception_v3</span> <span class="k">import</span> <span class="n">InceptionV3</span><span class="p">,</span> <span class="n">preprocess_input</span><span class="p">,</span> <span class="n">decode_predictions</span>
+<span class="n">net</span> <span class="o">=</span> <span class="n">InceptionV3</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">skimage</span> <span class="k">import</span> <span class="n">transform</span>
+
+<span class="k">def</span> <span class="nf">inception_predict</span><span class="p">(</span><span class="n">image</span><span class="p">):</span>
+    <span class="c1"># Rescale image to 299x299, as required by InceptionV3</span>
+    <span class="n">image_prep</span> <span class="o">=</span> <span class="n">transform</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="p">(</span><span class="mi">299</span><span class="p">,</span> <span class="mi">299</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;reflect&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># Scale image values to [-1, 1], as required by InceptionV3</span>
+    <span class="n">image_prep</span> <span class="o">=</span> <span class="p">(</span><span class="n">img_as_float</span><span class="p">(</span><span class="n">image_prep</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span>
+    
+    <span class="n">predictions</span> <span class="o">=</span> <span class="n">decode_predictions</span><span class="p">(</span>
+        <span class="n">net</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">image_prep</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span>
+    <span class="p">)</span>
+    
+    <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">)</span>
+    
+    <span class="k">for</span> <span class="n">pred</span> <span class="ow">in</span> <span class="n">predictions</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+        <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">klass</span><span class="p">,</span> <span class="n">prob</span><span class="p">)</span> <span class="o">=</span> <span class="n">pred</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;</span><span class="si">{klass:&gt;15}</span><span class="s1"> (</span><span class="si">{prob:.3f}</span><span class="s1">)&#39;</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">skimage</span> <span class="k">import</span> <span class="n">data</span><span class="p">,</span> <span class="n">img_as_float</span>
+<span class="n">inception_predict</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">chelsea</span><span class="p">())</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">inception_predict</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">camera</span><span class="p">())</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">inception_predict</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">coffee</span><span class="p">())</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+ 
+
+
+</main>
