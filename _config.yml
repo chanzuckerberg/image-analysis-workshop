@@ -23,13 +23,13 @@ description: >- # this means to ignore newlines until "baseurl:"
   UPDATE.
 
 baseurl: "/image-analysis-workshop" # the subpath of your site, e.g. /blog. If there is no subpath for your site, use an empty string ""
-url: "https://www.sofroniewn.github.io" # the base hostname & protocol for your site, e.g. http://example.com
+url: "https://chanzuckerberg.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 
 #######################################################################################
 # Jupyter Book settings
 
 # Main page settings
-footer_text: <a href="https://github.com/sofroniewn/2019-ndcn-comp-bio-imaging">View source repository</a>
+footer_text: <a href="https://github.com/chanzuckerberg/image-analysis-course">View source repository</a>
 
 # Sidebar settings
 show_sidebar: true # Show the sidebar. Only set to false if your only wish to host a single page.
@@ -56,10 +56,10 @@ jupyterhub_interact_text: "" # The text that interact buttons will contain.
 # Binder link settings
 use_binder_button: true # If 'true', add a binder button for interactive links
 binderhub_url: "" # The URL for your BinderHub. If no URL, use ""
-binder_repo_base: "https://github.com/sofroniewn/2019-ndcn-comp-bio-imaging" # The site on which the textbook repository is hosted
-binder_repo_org: "sofroniewn" # The username or organization that owns this repository
-binder_repo_name: "2019-ndcn-comp-bio-imaging" # The name of the repository on the web
-binder_repo_branch: "master" # The branch on which your textbook is hosted.
+binder_repo_base: "https://github.com/chanzuckerberg/image-analysis-course" # The site on which the textbook repository is hosted
+binder_repo_org: "chanzuckerberg" # The username or organization that owns this repository
+binder_repo_name: "image-analysis-course" # The name of the repository on the web
+binder_repo_branch: "gh-pages" # The branch on which your textbook is hosted.
 binderhub_interact_text: "Interact via Binder" # The text that interact buttons will contain.
 
 # Thebelab settings

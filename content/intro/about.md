@@ -49,7 +49,7 @@ This curriculum was originally taught during one day of a CZI-sponsored workshop
 
 ### Contributing
 
-We warmly welcome and encourage members of the scientific community to submit updates and improvements through [github](https://github.com/sofroniewn/2019-ndcn-comp-bio-imaging).
+We warmly welcome and encourage members of the scientific community to submit updates and improvements through [github](https://github.com/chanzuckerberg/image-analysis-course).
 
 We adhere to the license of the original materials:
 
