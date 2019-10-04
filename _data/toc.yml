@@ -1,0 +1,14 @@
+- header: Introduction
+- title: About the course
+  url: /intro/about
+- title: Setup and installation
+  url: /intro/setup
+
+- divider: true
+- header: Lessons
+- title: Fundamentals of scikit-image
+  url: /lessons/00_fundamentals_skimage
+- title: 2D processing
+  url: /lessons/01_2d_processing
+- title: Visualization
+  url: /lessons/02_datasets_visualization
