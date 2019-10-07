@@ -57,4 +57,4 @@ We adhere to the license of the original materials:
 
 ### Contact
 
-For quesetions, please contact [UPDATE]().
+For quesetions, please contact [Nick Sofroniev](https://twitter.com/sofroniewn).
