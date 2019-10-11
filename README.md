@@ -49,7 +49,7 @@ This course was first taught during one day of a CZI-sponsored workshop in Chica
 
 ### Contributing
 
-We warmly welcome and encourage members of the scientific community to submit updates and improvements through [github](https://github.com/chanzuckerberg/image-analysis-course).
+We warmly welcome and encourage members of the scientific community to submit updates and improvements through [github](https://github.com/chanzuckerberg/image-analysis-workshop).
 
 We adhere to the license of the original materials: [CC0 1.0 Universal](LICENSE)
 
