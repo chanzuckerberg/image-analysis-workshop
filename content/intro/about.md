@@ -1,4 +1,4 @@
-# Analysis of single cell RNA-seq data (Python)
+# Introduction to image analysis in Python
 
 ## Course goals
 
