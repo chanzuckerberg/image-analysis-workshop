@@ -13,7 +13,7 @@ This tutorial will introduce how to analyze images in Python, mainly using sciki
 
 ### Topics covered
 
-We'll cover the basics of:
+We'll cover the basics of how to:
 
 - Pre-process data using filtering, binarization and segmentation techniques
 - Inspect, count and measure attributes of objects and regions of interest in the data
@@ -36,25 +36,24 @@ We recommend the following introductory materials:
 
 ## [Scikit-image docs & tutorials](https://scikit-image.org/docs/stable/user_guide.html)
 
-## [Napari docs & tutorials](https://napari.github.io/napari-tutorials/)
+## [napari docs & tutorials](http://napari.org/)
 
 ## Development, reuse and contributing
 
 ### Content
 
-This course was [originally developed by [UPDATE](), and has been adapted [UPDATE]().
-We gratefully acknowledge the work of the original authors of the course material: XYZ.
+This course is an adaptation of one originally developed for the [2019 imageXD workshop](https://github.com/imagexd/2019-tutorial-skimage) using material from the [scikit-image tutorials](https://github.com/scikit-image/skimage-tutorials).
+We gratefully acknowledge the work of the original authors of the course material, particularly: Alexandre de Siqueira, Daniela Ushizima, and Stefan van der Walt.
 
-This curriculum was originally taught during one day of a CZI-sponsored workshop in Chicago, IL on October 18, 2019.
+This course was first taught during one day of a CZI-sponsored workshop in Chicago, IL on October 18, 2019.
 
 ### Contributing
 
 We warmly welcome and encourage members of the scientific community to submit updates and improvements through [github](https://github.com/chanzuckerberg/image-analysis-course).
 
-We adhere to the license of the original materials:
+We adhere to the license of the original materials: [CC0 1.0 Universal](LICENSE)
 
-> INSERT
 
 ### Contact
 
-For quesetions, please contact [UPDATE]().
+For questions, please contact [Nicholas Sofroniew](https://github.com/sofroniewn).
