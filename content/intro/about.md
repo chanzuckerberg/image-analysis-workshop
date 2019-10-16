@@ -1,4 +1,4 @@
-# Introduction to image analysis
+# Introduction to image analysis in Python
 
 ## Course goals
 
@@ -21,7 +21,7 @@ We'll cover the basics of how to:
 
 ## Prerequisites & resources
 
-The workshop consists of explanatory discussions interspersed with hands-on exercises. **We strongly encourage you to bring a laptop with all required packages installed in order to fully participate.** Please follow the instructions [here](setup.md)
+The workshop consists of explanatory discussions interspersed with hands-on exercises. **We strongly encourage you to bring a laptop with all required packages installed in order to fully participate.** Please follow the instructions [here](https://chanzuckerberg.github.io/image-analysis-workshop/intro/setup.html)
 
 The course is intended for those who have basic familiarity with Python (e.g., at the level covered in a software carpentry workshop). Basic familiarity with the Jupyter notebooks and the command line is helpful but not required.
 
@@ -49,7 +49,7 @@ This course was first taught during one day of a CZI-sponsored workshop in Chica
 
 ### Contributing
 
-We warmly welcome and encourage members of the scientific community to submit updates and improvements through [github](https://github.com/chanzuckerberg/image-analysis-course).
+We warmly welcome and encourage members of the scientific community to submit updates and improvements through [github](https://github.com/chanzuckerberg/image-analysis-workshop).
 
 We adhere to the license of the original materials: [CC0 1.0 Universal](LICENSE)
 

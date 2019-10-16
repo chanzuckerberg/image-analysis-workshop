@@ -56,7 +56,7 @@ You should get a browser tab that says "Jupyter" at the top and lists all the fi
 
 ### 5. Download course files
 
-Go to [https://github.com/chanzuckerberg/image-analysis-course](https://github.com/chanzuckerberg/image-analysis-course)
+Go to [https://github.com/chanzuckerberg/image-analysis-workshop](https://github.com/chanzuckerberg/image-analysis-workshop)
 
 If you are comfortable cloning a repository with git, we encourage you to do so. Otherwise, click the green "clone or download" button and choose "download zip". We encourage you to do this the evening before class, as we may make some last-minute updates to the material.
 
