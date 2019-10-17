@@ -2,7 +2,7 @@
 
 ## Course goals
 
-This tutorial will introduce how to analyze images in Python, mainly using scikit-image. We hope students leave with the ability to:
+This tutorial will introduce how to analyze images in Python, mainly using [scikit-image](https://scikit-image.org/). We hope students leave with the ability to:
 
 - Understand a general workflow for analyzing images
 - Anticipate and avoid some of the most common pitfalls in image analysis
@@ -17,7 +17,7 @@ We'll cover the basics of how to:
 
 - Pre-process data using filtering, binarization and segmentation techniques
 - Inspect, count and measure attributes of objects and regions of interest in the data
-- Visualize 2D and 3D data using napari
+- Visualize 2D and 3D data using [napari](http://napari.org/)
 
 ## Prerequisites & resources
 
