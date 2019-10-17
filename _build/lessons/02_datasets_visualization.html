@@ -27,7 +27,7 @@ comment: "***PROGRAMMATICALLY GENERATED, DO NOT EDIT. SEE ORIGINAL FILES IN /con
 <div class="text_cell_render border-box-sizing rendered_html">
 <h1 id="Visualization-in-python">Visualization in python<a class="anchor-link" href="#Visualization-in-python"> </a></h1><p>There are several <a href="https://en.wikipedia.org/wiki/Edge_detection">visualization</a> tools for 3D imagery have been developed with/for Python, for example
 Matplotlib (Hunter, 2007), Mayavi (Ramachandran &amp; Varoquaux, 2011), the <a href="https://github.com/maartenbreddels/ipyvolume/">ipyvolume</a>, the yt Project
-(Turk et al., 2010), and <a href="https://itk.org/">ITK</a> (Johnson, McCormick, Ibanez 2015).</p>
+(Turk et al., 2010), <a href="https://itk.org/">ITK</a> (Johnson, McCormick, Ibanez 2015), and more recently <a href="http://napari.org">napari</a>.</p>
 <p>The 3 main challenges of available tools are:</p>
 <ul>
 <li>working with large volumes: image sizes</li>
@@ -49,17 +49,10 @@ Matplotlib (Hunter, 2007), Mayavi (Ramachandran &amp; Varoquaux, 2011), the <a h
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-
-<span class="c1">#from ipywidgets import interact</span>
-
-<span class="c1">#from scipy import ndimage as ndi</span>
-
+<span class="kn">import</span> <span class="nn">napari</span>
 <span class="kn">from</span> <span class="nn">skimage</span> <span class="k">import</span> <span class="n">exposure</span><span class="p">,</span> <span class="n">io</span><span class="p">,</span> <span class="n">measure</span>
-                   <span class="c1"># morphology, restoration, segmentation, transform,</span>
-                    <span class="c1">#util)</span>
 
-<span class="o">%</span><span class="k">matplotlib</span> inline
+<span class="o">%</span><span class="k">gui</span> qt
 </pre></div>
 
     </div>
@@ -73,7 +66,7 @@ Matplotlib (Hunter, 2007), Mayavi (Ramachandran &amp; Varoquaux, 2011), the <a h
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Let's read the original image and the labeled result from previous lesson:</p>
+<p>Let's read the original image from previous lesson and view it in napari:</p>
 
 </div>
 </div>
@@ -87,15 +80,89 @@ Matplotlib (Hunter, 2007), Mayavi (Ramachandran &amp; Varoquaux, 2011), the <a h
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">input_filename</span><span class="o">=</span><span class="s2">&quot;data/cells.tif&quot;</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">input_filename</span><span class="o">=</span><span class="s2">&quot;../data/cells.tif&quot;</span>
 <span class="n">orig</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">input_filename</span><span class="p">)</span>
-<span class="n">equalized</span> <span class="o">=</span> <span class="n">exposure</span><span class="o">.</span><span class="n">equalize_hist</span><span class="p">(</span><span class="n">orig</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">orig</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 </pre></div>
 
     </div>
 </div>
 </div>
 
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">viewer</span> <span class="o">=</span> <span class="n">napari</span><span class="o">.</span><span class="n">view_image</span><span class="p">(</span><span class="n">orig</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;orignal&#39;</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's now do some histogram equalization and view the results as a new layer in napari</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">equalized</span> <span class="o">=</span> <span class="n">exposure</span><span class="o">.</span><span class="n">equalize_hist</span><span class="p">(</span><span class="n">orig</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">equalized</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">viewer</span><span class="o">.</span><span class="n">add_image</span><span class="p">(</span><span class="n">equalized</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;equalized&#39;</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's load and add the segmentation labels as a labels layer in napari</p>
+
+</div>
+</div>
 </div>
 </div>
 
@@ -107,8 +174,26 @@ Matplotlib (Hunter, 2007), Mayavi (Ramachandran &amp; Varoquaux, 2011), the <a h
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">skimage.external</span> <span class="k">import</span> <span class="n">tifffile</span>
-<span class="n">inputfile</span> <span class="o">=</span> <span class="s1">&#39;data/cells_interior_labels.tiff&#39;</span>
+<span class="n">inputfile</span> <span class="o">=</span> <span class="s1">&#39;../data/cells_interior_labels.tiff&#39;</span>
 <span class="n">relabeled</span> <span class="o">=</span> <span class="n">tifffile</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">inputfile</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">relabeled</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">viewer</span><span class="o">.</span><span class="n">add_labels</span><span class="p">(</span><span class="n">relabeled</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;labeled&#39;</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -122,7 +207,7 @@ Matplotlib (Hunter, 2007), Mayavi (Ramachandran &amp; Varoquaux, 2011), the <a h
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Let's create a simple visualizer</p>
+<p>Let's inspect the data that we've added to napari</p>
 
 </div>
 </div>
@@ -136,14 +221,7 @@ Matplotlib (Hunter, 2007), Mayavi (Ramachandran &amp; Varoquaux, 2011), the <a h
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">ipywidgets</span> <span class="k">as</span> <span class="nn">widgets</span>
-<span class="kn">from</span> <span class="nn">IPython.display</span> <span class="k">import</span> <span class="n">display</span>
-<span class="kn">from</span> <span class="nn">ipywidgets</span> <span class="k">import</span> <span class="n">interact</span><span class="p">,</span> <span class="n">interactive</span><span class="p">,</span> <span class="n">fixed</span><span class="p">,</span> <span class="n">interact_manual</span>
-
-<span class="k">def</span> <span class="nf">slicer</span><span class="p">(</span><span class="n">z</span><span class="p">):</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">relabeled</span><span class="p">[</span><span class="n">z</span><span class="p">,:,:],</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">)</span>
-
-<span class="n">interact</span><span class="p">(</span><span class="n">slicer</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="n">widgets</span><span class="o">.</span><span class="n">IntSlider</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="nb">max</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span><span class="n">step</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">value</span><span class="o">=</span><span class="mi">5</span><span class="p">));</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">viewer</span><span class="o">.</span><span class="n">layers</span>
 </pre></div>
 
     </div>
@@ -155,12 +233,18 @@ Matplotlib (Hunter, 2007), Mayavi (Ramachandran &amp; Varoquaux, 2011), the <a h
 
 <div class="jb_cell">
 
-<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Large datasets are a gift and a curse: while high-resolution imaging brings details about microstructures, the file sizes can quickly became an obstacle to analysis, particularly at your laptop. Here are some tips on how to proceed with your first explorations of your imagesets</p>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
 
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">viewer</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="s1">&#39;equalized&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">data</span>
+</pre></div>
+
+    </div>
 </div>
 </div>
+
 </div>
 </div>
 
@@ -171,12 +255,7 @@ Matplotlib (Hunter, 2007), Mayavi (Ramachandran &amp; Varoquaux, 2011), the <a h
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># MaxProjection:</span>
-        
-<span class="n">IM_MAX</span> <span class="o">=</span> <span class="n">relabeled</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-<span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">image</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">relabeled</span><span class="p">):</span> <span class="c1">#ndown here for low variation on Z</span>
-    <span class="n">IM_MAX</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">IM_MAX</span><span class="p">,</span><span class="n">image</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">IM_MAX</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">viewer</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="s1">&#39;equalized&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">viewer</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="s1">&#39;equalized&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">data</span> <span class="o">/</span> <span class="mi">2</span>
 </pre></div>
 
     </div>
@@ -225,7 +304,7 @@ Matplotlib (Hunter, 2007), Mayavi (Ramachandran &amp; Varoquaux, 2011), the <a h
 <span class="c1"># skimage.measure.marching_cubes expects ordering (row, col, pln)</span>
 <span class="n">volume</span> <span class="o">=</span> <span class="p">(</span><span class="n">relabeled</span> <span class="o">==</span> <span class="n">regionprops</span><span class="p">[</span><span class="n">selected_cell</span><span class="p">]</span><span class="o">.</span><span class="n">label</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
 
-<span class="n">verts_px</span><span class="p">,</span> <span class="n">faces_px</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">measure</span><span class="o">.</span><span class="n">marching_cubes_lewiner</span><span class="p">(</span><span class="n">volume</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">spacing</span><span class="o">=</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
+<span class="n">verts</span><span class="p">,</span> <span class="n">faces</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">values</span> <span class="o">=</span> <span class="n">measure</span><span class="o">.</span><span class="n">marching_cubes_lewiner</span><span class="p">(</span><span class="n">volume</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">spacing</span><span class="o">=</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
 </pre></div>
 
     </div>
@@ -253,7 +332,7 @@ Matplotlib (Hunter, 2007), Mayavi (Ramachandran &amp; Varoquaux, 2011), the <a h
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">surface_area_pixels</span> <span class="o">=</span> <span class="n">measure</span><span class="o">.</span><span class="n">mesh_surface_area</span><span class="p">(</span><span class="n">verts_px</span><span class="p">,</span> <span class="n">faces_px</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">surface_area_pixels</span> <span class="o">=</span> <span class="n">measure</span><span class="o">.</span><span class="n">mesh_surface_area</span><span class="p">(</span><span class="n">verts</span><span class="p">,</span> <span class="n">faces</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Surface area (total pixels): </span><span class="si">{:0.2f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">surface_area_pixels</span><span class="p">))</span>
 </pre></div>
 
@@ -266,33 +345,12 @@ Matplotlib (Hunter, 2007), Mayavi (Ramachandran &amp; Varoquaux, 2011), the <a h
 
 <div class="jb_cell">
 
-<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Remember that the cell data comes from an anisotropic acquisition, then we need to customize spacing:</p>
-
-</div>
-</div>
-</div>
-</div>
-
-<div class="jb_cell">
-
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># The microscope reports the following spacing:</span>
-<span class="n">original_spacing</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.2900000</span><span class="p">,</span> <span class="mf">0.0650000</span><span class="p">,</span> <span class="mf">0.0650000</span><span class="p">])</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;* Microscope original spacing: </span><span class="si">{original_spacing}</span><span class="s1">&#39;</span><span class="p">)</span>
-
-<span class="c1"># We downsampled each slice 4x to make the data smaller</span>
-<span class="n">rescaled_spacing</span> <span class="o">=</span> <span class="n">original_spacing</span> <span class="o">*</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;* Microscope after rescaling images: </span><span class="si">{rescaled_spacing}</span><span class="s1">&#39;</span><span class="p">)</span>
-
-<span class="c1"># Normalize the spacing so that pixels are a distance of 1 apart</span>
-<span class="n">spacing</span> <span class="o">=</span> <span class="n">rescaled_spacing</span> <span class="o">/</span> <span class="n">rescaled_spacing</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;* Microscope normalized spacing: </span><span class="si">{spacing}</span><span class="s1">&#39;</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">viewer</span><span class="o">.</span><span class="n">add_surface</span><span class="p">((</span><span class="n">verts</span><span class="p">[:,</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]],</span> <span class="n">faces</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">verts</span><span class="p">))),</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;surface&#39;</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -309,28 +367,7 @@ Matplotlib (Hunter, 2007), Mayavi (Ramachandran &amp; Varoquaux, 2011), the <a h
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">verts</span><span class="p">,</span> <span class="n">faces</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">measure</span><span class="o">.</span><span class="n">marching_cubes_lewiner</span><span class="p">(</span><span class="n">volume</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">spacing</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">spacing</span><span class="p">))</span>
-<span class="n">surface_area_actual</span> <span class="o">=</span> <span class="n">measure</span><span class="o">.</span><span class="n">mesh_surface_area</span><span class="p">(</span><span class="n">verts</span><span class="p">,</span> <span class="n">faces</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Surface area (total pixels): </span><span class="si">{:0.2f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">surface_area_pixels</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Surface area (actual): </span><span class="si">{:0.2f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">surface_area_actual</span><span class="p">))</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-</div>
-
-<div class="jb_cell">
-
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">verts</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span><span class="n">verts</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span><span class="s1">&#39;b.&#39;</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">viewer</span><span class="o">.</span><span class="n">layers</span>
 </pre></div>
 
     </div>
@@ -344,14 +381,17 @@ Matplotlib (Hunter, 2007), Mayavi (Ramachandran &amp; Varoquaux, 2011), the <a h
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="MPL_toolkit">MPL_toolkit<a class="anchor-link" href="#MPL_toolkit"> </a></h1><p>It ships with Matplotlib and thus may be a lighter weight solution for some use cases. Provide basic 3D plotting of:</p>
-<ul>
-<li>scatter, </li>
-<li>surf, </li>
-<li>line, </li>
-<li>mesh</li>
-</ul>
-<p>Not the fastest or most feature complete 3D library out there. Check out the mplot3d <a href="https://matplotlib.org/tutorials/toolkits/mplot3d.html#sphx-glr-tutorials-toolkits-mplot3d-py">tutorial</a> for more information. mplot3d supplies an axes object that can create a 2D projection of a 3D scene.</p>
+<h2 id="Looking-at-max-projections">Looking at max projections<a class="anchor-link" href="#Looking-at-max-projections"> </a></h2>
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Large datasets are a gift and a curse: while high-resolution imaging brings details about microstructures, the file sizes can quickly became an obstacle to analysis, particularly at your laptop. Here are some tips on how to proceed with your first explorations of your imagesets</p>
 
 </div>
 </div>
@@ -365,14 +405,26 @@ Matplotlib (Hunter, 2007), Mayavi (Ramachandran &amp; Varoquaux, 2011), the <a h
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">mpl_toolkits.mplot3d</span> <span class="k">import</span> <span class="n">Axes3D</span>
-<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
-<span class="c1">#method for creating a 3D axes object</span>
-<span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">gca</span><span class="p">(</span><span class="n">projection</span><span class="o">=</span><span class="s1">&#39;3d&#39;</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">max_projection</span> <span class="o">=</span> <span class="n">orig</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">max_projection_labeled</span> <span class="o">=</span> <span class="n">relabeled</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
 
-<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">verts</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span><span class="n">verts</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span><span class="n">verts</span><span class="p">[:,</span><span class="mi">2</span><span class="p">])</span>
+    </div>
+</div>
+</div>
 
-<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">viewer</span> <span class="o">=</span> <span class="n">napari</span><span class="o">.</span><span class="n">view_image</span><span class="p">(</span><span class="n">max_projection</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;max projection&#39;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;2d viewer&#39;</span><span class="p">)</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">add_labels</span><span class="p">(</span><span class="n">max_projection_labeled</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;max projection labels&#39;</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -386,10 +438,7 @@ Matplotlib (Hunter, 2007), Mayavi (Ramachandran &amp; Varoquaux, 2011), the <a h
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Exercise-1:">Exercise 1:<a class="anchor-link" href="#Exercise-1:"> </a></h2><p>a) Select a different cell, e.g. selected_cell = 1, and calculate the actual surface area</p>
-<p>b) explore parameters to improve the scatter plot, e.g., label and colors</p>
-<p>c) find the largest connected component</p>
-
+<h2 id="Visualizing-filer-results">Visualizing filer results<a class="anchor-link" href="#Visualizing-filer-results"> </a></h2>
 </div>
 </div>
 </div>
@@ -402,7 +451,7 @@ Matplotlib (Hunter, 2007), Mayavi (Ramachandran &amp; Varoquaux, 2011), the <a h
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#%load solution/03_solution01_a.py</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">skimage</span> <span class="k">import</span> <span class="n">filters</span>  <span class="c1"># skimage&#39;s filtering module</span>
 </pre></div>
 
     </div>
@@ -419,7 +468,11 @@ Matplotlib (Hunter, 2007), Mayavi (Ramachandran &amp; Varoquaux, 2011), the <a h
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#%load solution/03_solution01_b.py</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">plane_sobel_h</span> <span class="o">=</span> <span class="n">filters</span><span class="o">.</span><span class="n">sobel_h</span><span class="p">(</span><span class="n">max_projection</span><span class="p">)</span>  <span class="c1"># Horizontal Sobel.</span>
+<span class="n">plane_sobel_v</span> <span class="o">=</span> <span class="n">filters</span><span class="o">.</span><span class="n">sobel_v</span><span class="p">(</span><span class="n">max_projection</span><span class="p">)</span>  <span class="c1"># Vertical Sobel.</span>
+<span class="n">plane_roberts</span> <span class="o">=</span> <span class="n">filters</span><span class="o">.</span><span class="n">roberts</span><span class="p">(</span><span class="n">max_projection</span><span class="p">)</span>  <span class="c1"># Roberts.</span>
+<span class="n">plane_prewitt</span> <span class="o">=</span> <span class="n">filters</span><span class="o">.</span><span class="n">prewitt</span><span class="p">(</span><span class="n">max_projection</span><span class="p">)</span>  <span class="c1"># Prewitt.</span>
+<span class="n">plane_scharr</span> <span class="o">=</span> <span class="n">filters</span><span class="o">.</span><span class="n">scharr</span><span class="p">(</span><span class="n">max_projection</span><span class="p">)</span>  <span class="c1"># Scharr.</span>
 </pre></div>
 
     </div>
@@ -436,55 +489,11 @@ Matplotlib (Hunter, 2007), Mayavi (Ramachandran &amp; Varoquaux, 2011), the <a h
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># %load solution/03_solution01_c.py</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-</div>
-
-<div class="jb_cell">
-
-<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Is it possible to create a better projection that that? Yes, the volume (polyhedron) can be visualized using the mesh, a set of polygons created by <code>Poly3DCollection</code> determined by the vertexes and faces.</p>
-
-</div>
-</div>
-</div>
-</div>
-
-<div class="jb_cell">
-
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">mpl_toolkits.mplot3d.art3d</span> <span class="k">import</span> <span class="n">Poly3DCollection</span>
-
-<span class="n">selected_cell</span> <span class="o">=</span> <span class="mi">3</span>
-<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
-
-<span class="c1">#method for creating a 3D axes object</span>
-<span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="s1">&#39;3d&#39;</span><span class="p">)</span>
-
-<span class="n">mesh</span> <span class="o">=</span> <span class="n">Poly3DCollection</span><span class="p">(</span><span class="n">verts_px</span><span class="p">[</span><span class="n">faces_px</span><span class="p">])</span>
-<span class="c1">#makes edges visible</span>
-<span class="n">mesh</span><span class="o">.</span><span class="n">set_edgecolor</span><span class="p">(</span><span class="s1">&#39;black&#39;</span><span class="p">)</span> 
-<span class="n">ax</span><span class="o">.</span><span class="n">add_collection3d</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span>
-
-<span class="c1">#retrieve spatial coord of selected cell</span>
-<span class="n">min_pln</span><span class="p">,</span> <span class="n">min_row</span><span class="p">,</span> <span class="n">min_col</span><span class="p">,</span> <span class="n">max_pln</span><span class="p">,</span> <span class="n">max_row</span><span class="p">,</span> <span class="n">max_col</span> <span class="o">=</span> <span class="n">regionprops</span><span class="p">[</span><span class="n">selected_cell</span><span class="p">]</span><span class="o">.</span><span class="n">bbox</span>
-
-<span class="c1">#requires setting the region of interest</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">min_row</span><span class="p">,</span> <span class="n">max_row</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">min_col</span><span class="p">,</span> <span class="n">max_col</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">set_zlim</span><span class="p">(</span><span class="n">min_pln</span><span class="p">,</span> <span class="n">max_pln</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">viewer</span><span class="o">.</span><span class="n">add_image</span><span class="p">(</span><span class="n">plane_sobel_h</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;Horizontal Sobel&#39;</span><span class="p">)</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">add_image</span><span class="p">(</span><span class="n">plane_sobel_v</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;Vertical Sobel&#39;</span><span class="p">)</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">add_image</span><span class="p">(</span><span class="n">plane_roberts</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;Roberts&#39;</span><span class="p">)</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">add_image</span><span class="p">(</span><span class="n">plane_prewitt</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;Prewitt&#39;</span><span class="p">)</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">add_image</span><span class="p">(</span><span class="n">plane_scharr</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;Scharr&#39;</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -498,12 +507,7 @@ Matplotlib (Hunter, 2007), Mayavi (Ramachandran &amp; Varoquaux, 2011), the <a h
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="ITK-and-ITKwidgets-in-itkwidgets">ITK and ITKwidgets in itkwidgets<a class="anchor-link" href="#ITK-and-ITKwidgets-in-itkwidgets"> </a></h1><ul>
-<li>VTK is a powerful scientific visualization library with Python bindings, and speedy C++ backend. The library itkwidgets provides interactive ipywidgets to visualize images in 2D and 3D; </li>
-<li>ITKwidgets are Jupyter widgets to visualize images, point sets, and meshes;</li>
-<li>More at: <a href="https://github.com/InsightSoftwareConsortium/itkwidgets">[repo]</a> <a href="https://itk.org/ITKExamples/src/index.html">[examples]</a> <a href="https://itkpythonpackage.readthedocs.io/en/latest/Quick_start_guide.html">[docs]</a></li>
-</ul>
-
+<h2 id="Interactive-segmentation">Interactive segmentation<a class="anchor-link" href="#Interactive-segmentation"> </a></h2>
 </div>
 </div>
 </div>
@@ -516,68 +520,9 @@ Matplotlib (Hunter, 2007), Mayavi (Ramachandran &amp; Varoquaux, 2011), the <a h
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">itk</span>
-<span class="kn">from</span> <span class="nn">itkwidgets</span> <span class="k">import</span> <span class="n">view</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-</div>
-
-<div class="jb_cell">
-
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#Reformat the numpy array into an itk matrix</span>
-<span class="n">image</span> <span class="o">=</span> <span class="n">itk</span><span class="o">.</span><span class="n">GetImageFromArray</span><span class="p">(</span><span class="n">relabeled</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">))</span>
-<span class="n">view</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">slicing_planes</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-</div>
-
-<div class="jb_cell">
-
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#Reading with itk</span>
-<span class="n">input_filename</span><span class="o">=</span><span class="s2">&quot;data/bead_pack_artifacts_small.tif&quot;</span>
-<span class="n">image</span> <span class="o">=</span> <span class="n">itk</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">input_filename</span><span class="p">)</span>
-<span class="n">view</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;Cold and Hot&#39;</span><span class="p">,</span> <span class="n">slicing_planes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">gradient_opacity</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-</div>
-
-<div class="jb_cell">
-
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#convert to nnumpy array</span>
-<span class="n">image_np</span> <span class="o">=</span> <span class="n">itk</span><span class="o">.</span><span class="n">GetArrayFromImage</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;* Data shape: </span><span class="si">{image_np.shape}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;* Data type:  </span><span class="si">{image_np.dtype}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;* Data range: ({image_np.min()}, {image_np.max()})&quot;</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">skimage</span> <span class="k">import</span> <span class="n">morphology</span>  <span class="c1"># skimage&#39;s morphological submodules.</span>
+<span class="kn">from</span> <span class="nn">skimage</span> <span class="k">import</span> <span class="n">feature</span>  <span class="c1"># skimage&#39;s feature submodule.</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="k">import</span> <span class="n">ndimage</span>
 </pre></div>
 
     </div>
@@ -591,9 +536,7 @@ Matplotlib (Hunter, 2007), Mayavi (Ramachandran &amp; Varoquaux, 2011), the <a h
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Data-reduction-using-slicing">Data reduction using slicing<a class="anchor-link" href="#Data-reduction-using-slicing"> </a></h2><ul>
-<li>The syntax ::2 easily extract the elements of a list that have even indexes; in other words, you will retrieve every other slice</li>
-</ul>
+<p>Let's repeat the binarization process and distance calculation that we did at the end of the last lesson</p>
 
 </div>
 </div>
@@ -607,11 +550,31 @@ Matplotlib (Hunter, 2007), Mayavi (Ramachandran &amp; Varoquaux, 2011), the <a h
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">skimage.filters</span> <span class="k">import</span> <span class="n">threshold_isodata</span>
-<span class="n">image_np</span><span class="o">=</span><span class="n">image_np</span><span class="p">[::</span><span class="mi">2</span><span class="p">,::</span><span class="mi">2</span><span class="p">,::</span><span class="mi">2</span><span class="p">]</span>
-<span class="n">image_np</span> <span class="o">=</span> <span class="n">image_np</span><span class="o">&gt;</span><span class="n">threshold_isodata</span><span class="p">(</span><span class="n">image_np</span><span class="p">)</span>
-<span class="n">image_itk</span> <span class="o">=</span> <span class="n">itk</span><span class="o">.</span><span class="n">GetImageFromArray</span><span class="p">(</span><span class="n">image_np</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">))</span>
-<span class="n">view</span><span class="p">(</span><span class="n">image_itk</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;Cold and Hot&#39;</span><span class="p">,</span><span class="n">rotate</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">gradient_opacity</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">plane_binary</span> <span class="o">=</span> <span class="n">max_projection</span> <span class="o">&gt;=</span> <span class="n">filters</span><span class="o">.</span><span class="n">threshold_li</span><span class="p">(</span><span class="n">max_projection</span><span class="p">)</span>
+<span class="n">plane_remove_holes</span> <span class="o">=</span> <span class="n">morphology</span><span class="o">.</span><span class="n">remove_small_holes</span><span class="p">(</span><span class="n">plane_binary</span><span class="p">,</span> <span class="mi">60</span><span class="p">)</span>
+<span class="n">plane_remove_objects</span> <span class="o">=</span> <span class="n">morphology</span><span class="o">.</span><span class="n">remove_small_objects</span><span class="p">(</span><span class="n">plane_remove_holes</span><span class="p">,</span> <span class="n">min_size</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+<span class="n">plane_distance</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">distance_transform_edt</span><span class="p">(</span><span class="n">plane_remove_objects</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">viewer</span> <span class="o">=</span> <span class="n">napari</span><span class="o">.</span><span class="n">view_image</span><span class="p">(</span><span class="n">max_projection</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;original&#39;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;segmentation&#39;</span><span class="p">)</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">add_image</span><span class="p">(</span><span class="n">plane_binary</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;binary&#39;</span><span class="p">)</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">add_image</span><span class="p">(</span><span class="n">plane_remove_holes</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;remove holes&#39;</span><span class="p">)</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">add_image</span><span class="p">(</span><span class="n">plane_remove_objects</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;remove objects&#39;</span><span class="p">)</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">add_image</span><span class="p">(</span><span class="n">plane_distance</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;distances&#39;</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -625,10 +588,7 @@ Matplotlib (Hunter, 2007), Mayavi (Ramachandran &amp; Varoquaux, 2011), the <a h
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Exercise-2.">Exercise 2.<a class="anchor-link" href="#Exercise-2."> </a></h2><ul>
-<li>Explore the parameters in <code>view</code> and select roi</li>
-<li>Visualize another dataset, e.g. data/mriBrain.tif</li>
-</ul>
+<p>Let's now finish the segmentation as before</p>
 
 </div>
 </div>
@@ -642,11 +602,22 @@ Matplotlib (Hunter, 2007), Mayavi (Ramachandran &amp; Varoquaux, 2011), the <a h
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># This image has anisotropic spacing</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">smooth_distance</span> <span class="o">=</span> <span class="n">filters</span><span class="o">.</span><span class="n">gaussian</span><span class="p">(</span><span class="n">plane_distance</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">peak_local_max</span> <span class="o">=</span> <span class="n">feature</span><span class="o">.</span><span class="n">peak_local_max</span><span class="p">(</span>
+    <span class="n">smooth_distance</span><span class="p">,</span>
+    <span class="n">footprint</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">7</span><span class="p">,</span> <span class="mi">7</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">bool</span><span class="p">),</span>
+    <span class="n">indices</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">labels</span><span class="o">=</span><span class="n">measure</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">plane_remove_objects</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="n">peaks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">peak_local_max</span><span class="p">)</span>
 
-<span class="n">input_filename</span><span class="o">=</span><span class="s2">&quot;data/mriBrain.tif&quot;</span>
-<span class="n">image</span> <span class="o">=</span> <span class="n">itk</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">input_filename</span><span class="p">)</span>
-<span class="n">view</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;Cold and Hot&#39;</span><span class="p">,</span> <span class="n">slicing_planes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">gradient_opacity</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span>
+<span class="n">plane_markers</span> <span class="o">=</span> <span class="n">measure</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">peak_local_max</span><span class="p">)</span>
+
+<span class="n">plane_labels</span> <span class="o">=</span> <span class="n">morphology</span><span class="o">.</span><span class="n">watershed</span><span class="p">(</span>
+    <span class="o">-</span><span class="n">smooth_distance</span><span class="p">,</span> 
+    <span class="n">plane_markers</span><span class="p">,</span> 
+    <span class="n">mask</span><span class="o">=</span><span class="n">plane_remove_objects</span>
+<span class="p">)</span>
 </pre></div>
 
     </div>
@@ -663,27 +634,9 @@ Matplotlib (Hunter, 2007), Mayavi (Ramachandran &amp; Varoquaux, 2011), the <a h
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">GetSpacing</span><span class="p">())</span>
-<span class="n">image</span><span class="o">.</span><span class="n">SetSpacing</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">5</span><span class="p">])</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="n">GetSpacing</span><span class="p">())</span>
-<span class="n">view</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;Cold and Hot&#39;</span><span class="p">,</span> <span class="n">slicing_planes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">gradient_opacity</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-</div>
-
-<div class="jb_cell">
-
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#view(image, cmap=&#39;Cold and Hot&#39;, slicing_planes=True,gradient_opacity=0.4)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">viewer</span><span class="o">.</span><span class="n">add_image</span><span class="p">(</span><span class="n">smooth_distance</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;smooth distances&#39;</span><span class="p">)</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">add_points</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">peaks</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;peaks&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">add_labels</span><span class="p">(</span><span class="n">plane_labels</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;labels&#39;</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -697,9 +650,93 @@ Matplotlib (Hunter, 2007), Mayavi (Ramachandran &amp; Varoquaux, 2011), the <a h
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Going-beyond">Going beyond<a class="anchor-link" href="#Going-beyond"> </a></h2><p>[1] Segmentation of 3-D tomography images with Python: <a href="http://emmanuelle.github.io/segmentation-of-3-d-tomography-images-with-python-and-scikit-image.html">http://emmanuelle.github.io/segmentation-of-3-d-tomography-images-with-python-and-scikit-image.html</a></p>
-<p>[2] ITKwidgets examples: <a href="https://github.com/InsightSoftwareConsortium/itkwidgets/tree/master/examples">https://github.com/InsightSoftwareConsortium/itkwidgets/tree/master/examples</a></p>
-<p>[3] Image processing with Dask arrays: <a href="https://dask-image.readthedocs.io/en/latest/">https://dask-image.readthedocs.io/en/latest/</a></p>
+<p>Now lets update the labeling based on our new points</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">update_labeling</span><span class="p">(</span><span class="n">viewer</span><span class="p">):</span>
+    <span class="n">viewer</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="s1">&#39;updating labels&#39;</span>
+    <span class="n">peak_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">viewer</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="s1">&#39;peaks&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">new_peaks</span> <span class="o">=</span> <span class="p">(</span><span class="n">peak_data</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">peak_data</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">peak_local_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">max_projection</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="n">peak_local_max</span><span class="p">[</span><span class="n">new_peaks</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">plane_markers</span> <span class="o">=</span> <span class="n">measure</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">peak_local_max</span><span class="p">)</span>
+    <span class="n">new_plane_labels</span> <span class="o">=</span> <span class="n">morphology</span><span class="o">.</span><span class="n">watershed</span><span class="p">(</span>
+        <span class="o">-</span><span class="n">smooth_distance</span><span class="p">,</span> 
+        <span class="n">plane_markers</span><span class="p">,</span> 
+        <span class="n">mask</span><span class="o">=</span><span class="n">plane_remove_objects</span>
+    <span class="p">)</span>
+    <span class="n">viewer</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="s1">&#39;labels&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">new_plane_labels</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">update_labeling</span><span class="p">(</span><span class="n">viewer</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now lets bind this function to a keypress in the viewer</p>
+
+</div>
+</div>
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">viewer</span><span class="o">.</span><span class="n">bind_key</span><span class="p">(</span><span class="s1">&#39;Control-U&#39;</span><span class="p">,</span> <span class="n">update_labeling</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="jb_cell">
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Going-beyond">Going beyond<a class="anchor-link" href="#Going-beyond"> </a></h1><p>[1] Segmentation of 3-D tomography images with Python: <a href="http://emmanuelle.github.io/segmentation-of-3-d-tomography-images-with-python-and-scikit-image.html">http://emmanuelle.github.io/segmentation-of-3-d-tomography-images-with-python-and-scikit-image.html</a></p>
+<p>[2] Image processing with Dask arrays: <a href="https://dask-image.readthedocs.io/en/latest/">https://dask-image.readthedocs.io/en/latest/</a></p>
 
 </div>
 </div>
