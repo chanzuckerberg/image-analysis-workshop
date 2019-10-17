@@ -1,5 +1,11 @@
 # Introduction to image analysis in Python
 
+## Pre- and post-surveys
+Before the workshop begins, please fill in [this pre-survey](https://forms.gle/tMrSMyKMZQ6XKJGo6).  
+At the conclusion of the workshop, please fill in [this post-survey](https://forms.gle/g5oMj8WzkwRVFyzo8).
+
+Thanks! This will help us improve future workshops.
+
 ## Course goals
 
 This tutorial will introduce how to analyze images in Python, mainly using [scikit-image](https://scikit-image.org/). We hope students leave with the ability to:
